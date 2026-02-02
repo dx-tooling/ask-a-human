@@ -12,6 +12,14 @@ S3 bucket names must be unique across ALL AWS accounts worldwide. Always include
 
 Source: Task 01 - `aah-terraform-state` was taken, had to use `aah-terraform-state-325062206315`.
 
+### CloudFront Requires Certificates in us-east-1
+
+CloudFront distributions can ONLY use ACM certificates from us-east-1, regardless of where other resources are. You need separate certificates:
+- **us-east-1**: For CloudFront (frontend)
+- **us-west-1**: For API Gateway regional endpoint (API)
+
+Source: AWS documentation, discovered during Task 01 planning review.
+
 ### Must Assume Role Before Running Terraform
 
 The credentials in `secrets/AWS.txt` are for the IAM account, not the infra account. You must assume the `AccountManager` role before running any AWS CLI or Terraform commands:

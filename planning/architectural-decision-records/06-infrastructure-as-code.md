@@ -127,18 +127,38 @@ infrastructure/
 **Domain:** `ask-a-human.com`  
 **DNS Provider:** IONOS (not Route53)
 
-### SSL Certificate (ACM)
+### SSL Certificates (ACM)
+
+**Important:** CloudFront requires certificates in `us-east-1`. API Gateway regional endpoints use certificates in the same region (`us-west-1`). We need **two certificates**:
+
+| Certificate | Region | Used By |
+|-------------|--------|---------|
+| `aws_acm_certificate.cloudfront` | us-east-1 | CloudFront (frontend) |
+| `aws_acm_certificate.api` | us-west-1 | API Gateway (API) |
 
 Since DNS is not in Route53, we use DNS validation with manual CNAME records:
 
 ```hcl
-resource "aws_acm_certificate" "main" {
+# Certificate for CloudFront (MUST be in us-east-1)
+provider "aws" {
+  alias  = "us_east_1"
+  region = "us-east-1"
+}
+
+resource "aws_acm_certificate" "cloudfront" {
+  provider          = aws.us_east_1
   domain_name       = "ask-a-human.com"
   validation_method = "DNS"
   
-  subject_alternative_names = [
-    "api.ask-a-human.com"
-  ]
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+# Certificate for API Gateway (same region as API)
+resource "aws_acm_certificate" "api" {
+  domain_name       = "api.ask-a-human.com"
+  validation_method = "DNS"
   
   lifecycle {
     create_before_destroy = true
@@ -147,13 +167,20 @@ resource "aws_acm_certificate" "main" {
 
 output "acm_validation_records" {
   description = "DNS records to add at IONOS for certificate validation"
-  value = {
-    for dvo in aws_acm_certificate.main.domain_validation_options : dvo.domain_name => {
-      name  = dvo.resource_record_name
-      type  = dvo.resource_record_type
-      value = dvo.resource_record_value
+  value = merge(
+    { for dvo in aws_acm_certificate.cloudfront.domain_validation_options : dvo.domain_name => {
+        name  = dvo.resource_record_name
+        type  = dvo.resource_record_type
+        value = dvo.resource_record_value
+      }
+    },
+    { for dvo in aws_acm_certificate.api.domain_validation_options : dvo.domain_name => {
+        name  = dvo.resource_record_name
+        type  = dvo.resource_record_type
+        value = dvo.resource_record_value
+      }
     }
-  }
+  )
 }
 ```
 
@@ -189,7 +216,7 @@ resource "aws_cloudfront_distribution" "frontend" {
   }
   
   viewer_certificate {
-    acm_certificate_arn      = aws_acm_certificate.main.arn
+    acm_certificate_arn      = aws_acm_certificate.cloudfront.arn  # Must be us-east-1
     ssl_support_method       = "sni-only"
     minimum_protocol_version = "TLSv1.2_2021"
   }
@@ -208,7 +235,7 @@ resource "aws_apigatewayv2_domain_name" "api" {
   domain_name = "api.ask-a-human.com"
   
   domain_name_configuration {
-    certificate_arn = aws_acm_certificate.main.arn
+    certificate_arn = aws_acm_certificate.api.arn  # Regional, same as API Gateway
     endpoint_type   = "REGIONAL"
     security_policy = "TLS_1_2"
   }

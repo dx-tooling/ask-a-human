@@ -44,6 +44,16 @@ The `dynamodb_table` parameter for state locking in the S3 backend is deprecated
 
 Source: Task 01 implementation, Terraform warning during apply.
 
+### ACM Certificates: Region Matters (2026-02-02)
+
+CloudFront can ONLY use ACM certificates from `us-east-1`, regardless of where the distribution is configured. This is an AWS limitation. For our setup:
+- CloudFront (frontend): Needs certificate in `us-east-1`
+- API Gateway (regional): Can use certificate in same region (`us-west-1`)
+
+Current state: We have a certificate in `us-west-1` for `ask-a-human.com` and `api.ask-a-human.com`. This works for API Gateway. When we implement the frontend module, we'll need to create a separate certificate in `us-east-1` for CloudFront.
+
+Source: Task 01 review, AWS documentation.
+
 ---
 
 ## Frontend / PWA
