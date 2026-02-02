@@ -31,7 +31,9 @@ export function useQuestions(options: UseQuestionsOptions = {}): UseQuestionsRes
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<Error | null>(null);
     const pollTimeoutRef = useRef<number | null>(null);
+    const hasFetchedOnce = useRef(false);
 
+    // Full fetch with loading state (for initial load and manual refetch)
     const fetchQuestions = useCallback(async () => {
         setIsLoading(true);
         setError(null);
@@ -39,6 +41,7 @@ export function useQuestions(options: UseQuestionsOptions = {}): UseQuestionsRes
         try {
             const data = await getQuestions(limit);
             setQuestions(data);
+            hasFetchedOnce.current = true;
         } catch (err) {
             if (err instanceof ApiError) {
                 setError(err);
@@ -52,12 +55,23 @@ export function useQuestions(options: UseQuestionsOptions = {}): UseQuestionsRes
         }
     }, [limit]);
 
+    // Silent fetch for background polling (no loading spinner)
+    const pollQuestions = useCallback(async () => {
+        try {
+            const data = await getQuestions(limit);
+            setQuestions(data);
+        } catch {
+            // Silently ignore errors during background polling
+            // The next poll will try again
+        }
+    }, [limit]);
+
     // Initial fetch
     useEffect(() => {
         void fetchQuestions();
     }, [fetchQuestions]);
 
-    // Poll when empty
+    // Poll when empty (silently, without loading state)
     useEffect(() => {
         // Clear any existing timeout
         if (pollTimeoutRef.current !== null) {
@@ -65,10 +79,10 @@ export function useQuestions(options: UseQuestionsOptions = {}): UseQuestionsRes
             pollTimeoutRef.current = null;
         }
 
-        // Only poll if: no questions, not loading, no error, and polling is enabled
-        if (questions.length === 0 && !isLoading && !error && pollWhenEmpty > 0) {
+        // Only poll if: already fetched once, no questions, not loading, no error, and polling is enabled
+        if (hasFetchedOnce.current && questions.length === 0 && !isLoading && !error && pollWhenEmpty > 0) {
             pollTimeoutRef.current = window.setTimeout(() => {
-                void fetchQuestions();
+                void pollQuestions();
             }, pollWhenEmpty);
         }
 
@@ -78,7 +92,7 @@ export function useQuestions(options: UseQuestionsOptions = {}): UseQuestionsRes
                 window.clearTimeout(pollTimeoutRef.current);
             }
         };
-    }, [questions.length, isLoading, error, pollWhenEmpty, fetchQuestions]);
+    }, [questions.length, isLoading, error, pollWhenEmpty, pollQuestions]);
 
     return {
         questions,
