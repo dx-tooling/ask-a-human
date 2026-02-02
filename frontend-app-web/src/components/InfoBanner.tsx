@@ -68,7 +68,9 @@ export function InfoBanner() {
                     </div>
                 </div>
                 <button
-                    onClick={() => setIsDismissed(true)}
+                    onClick={() => {
+                        setIsDismissed(true);
+                    }}
                     className="flex-shrink-0 p-1 rounded-lg text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-200/50 dark:hover:bg-gray-700/50 transition-colors"
                     aria-label="Dismiss"
                 >

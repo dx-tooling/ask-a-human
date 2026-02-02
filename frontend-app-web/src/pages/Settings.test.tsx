@@ -89,8 +89,10 @@ describe("Settings", () => {
         renderSettings();
 
         expect(screen.getByText("About")).toBeInTheDocument();
-        expect(screen.getByText(/Ask a Human helps AI agents/)).toBeInTheDocument();
+        expect(screen.getByText(/Ask a Human/)).toBeInTheDocument();
+        expect(screen.getByText(/connects/i)).toBeInTheDocument();
         expect(screen.getByText("Version 0.1.0")).toBeInTheDocument();
+        expect(screen.getByText("View on GitHub")).toBeInTheDocument();
     });
 
     it("theme selection with keyboard", () => {
