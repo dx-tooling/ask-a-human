@@ -31,3 +31,5 @@ File `secrets/ask-a-human-poc-firebase-adminsdk-fbsvc-3a666671a0.json` looks lik
   "universe_domain": "googleapis.com"
 }
 ```
+
+We have full control over domain `aah.dx-tooling.org`, including DNS records management. This domain is not registered through Amazon Registrar / Route53; DNS management happens at German hoster IONOS.

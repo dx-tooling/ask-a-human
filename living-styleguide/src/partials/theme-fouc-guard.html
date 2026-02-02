@@ -1,0 +1,12 @@
+<!-- Inline script to prevent FOUC for theme -->
+<script>
+  (
+    () => {
+      const storedTheme = localStorage.getItem('theme');
+      const osPreferenceDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (storedTheme === 'dark' || (storedTheme === null && osPreferenceDark)) {
+        document.documentElement.classList.add('dark');
+      }
+    }
+  )();
+</script> 
