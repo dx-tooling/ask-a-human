@@ -31,7 +31,7 @@ export function useQuestions(options: UseQuestionsOptions = {}): UseQuestionsRes
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<Error | null>(null);
     const pollTimeoutRef = useRef<number | null>(null);
-    const hasFetchedOnce = useRef(false);
+    const isMountedRef = useRef(true);
 
     // Full fetch with loading state (for initial load and manual refetch)
     const fetchQuestions = useCallback(async () => {
@@ -41,7 +41,6 @@ export function useQuestions(options: UseQuestionsOptions = {}): UseQuestionsRes
         try {
             const data = await getQuestions(limit);
             setQuestions(data);
-            hasFetchedOnce.current = true;
         } catch (err) {
             if (err instanceof ApiError) {
                 setError(err);
@@ -55,44 +54,62 @@ export function useQuestions(options: UseQuestionsOptions = {}): UseQuestionsRes
         }
     }, [limit]);
 
-    // Silent fetch for background polling (no loading spinner)
-    const pollQuestions = useCallback(async () => {
-        try {
-            const data = await getQuestions(limit);
-            setQuestions(data);
-        } catch {
-            // Silently ignore errors during background polling
-            // The next poll will try again
+    // Schedule next poll (self-rescheduling)
+    const scheduleNextPoll = useCallback(() => {
+        if (pollTimeoutRef.current !== null) {
+            window.clearTimeout(pollTimeoutRef.current);
         }
-    }, [limit]);
+
+        if (pollWhenEmpty > 0 && isMountedRef.current) {
+            pollTimeoutRef.current = window.setTimeout(async () => {
+                if (!isMountedRef.current) return;
+
+                try {
+                    const data = await getQuestions(limit);
+                    if (!isMountedRef.current) return;
+
+                    setQuestions(data);
+
+                    // If still empty, schedule another poll
+                    if (data.length === 0) {
+                        scheduleNextPoll();
+                    }
+                } catch {
+                    // On error, try again
+                    if (isMountedRef.current) {
+                        scheduleNextPoll();
+                    }
+                }
+            }, pollWhenEmpty);
+        }
+    }, [limit, pollWhenEmpty]);
 
     // Initial fetch
     useEffect(() => {
+        isMountedRef.current = true;
         void fetchQuestions();
-    }, [fetchQuestions]);
 
-    // Poll when empty (silently, without loading state)
-    useEffect(() => {
-        // Clear any existing timeout
-        if (pollTimeoutRef.current !== null) {
-            window.clearTimeout(pollTimeoutRef.current);
-            pollTimeoutRef.current = null;
-        }
-
-        // Only poll if: already fetched once, no questions, not loading, no error, and polling is enabled
-        if (hasFetchedOnce.current && questions.length === 0 && !isLoading && !error && pollWhenEmpty > 0) {
-            pollTimeoutRef.current = window.setTimeout(() => {
-                void pollQuestions();
-            }, pollWhenEmpty);
-        }
-
-        // Cleanup on unmount
         return () => {
+            isMountedRef.current = false;
             if (pollTimeoutRef.current !== null) {
                 window.clearTimeout(pollTimeoutRef.current);
             }
         };
-    }, [questions.length, isLoading, error, pollWhenEmpty, pollQuestions]);
+    }, [fetchQuestions]);
+
+    // Start/stop polling based on questions state
+    useEffect(() => {
+        if (!isLoading && !error && questions.length === 0) {
+            // Start polling when empty
+            scheduleNextPoll();
+        } else {
+            // Stop polling when we have questions or there's an error
+            if (pollTimeoutRef.current !== null) {
+                window.clearTimeout(pollTimeoutRef.current);
+                pollTimeoutRef.current = null;
+            }
+        }
+    }, [questions.length, isLoading, error, scheduleNextPoll]);
 
     return {
         questions,
