@@ -111,7 +111,7 @@ describe("Feed", () => {
 
     it("shows singular 'question' text for single question", () => {
         mockUseQuestions.mockReturnValue({
-            questions: [mockQuestions[0]],
+            questions: mockQuestions.slice(0, 1),
             isLoading: false,
             error: null,
             refetch: vi.fn(),

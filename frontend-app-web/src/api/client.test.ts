@@ -4,7 +4,7 @@ import { ApiError } from "@/types/api";
 
 // Mock fetch globally
 const mockFetch = vi.fn();
-(global as unknown as { fetch: typeof mockFetch }).fetch = mockFetch;
+vi.stubGlobal("fetch", mockFetch);
 
 // Mock localStorage
 const localStorageMock = (() => {
@@ -19,13 +19,11 @@ const localStorageMock = (() => {
         },
     };
 })();
-Object.defineProperty(global, "localStorage", { value: localStorageMock });
+vi.stubGlobal("localStorage", localStorageMock);
 
 // Mock crypto.randomUUID
-Object.defineProperty(global, "crypto", {
-    value: {
-        randomUUID: vi.fn(() => "test-uuid-12345"),
-    },
+vi.stubGlobal("crypto", {
+    randomUUID: vi.fn(() => "test-uuid-12345"),
 });
 
 describe("API Client", () => {
