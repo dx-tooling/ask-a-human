@@ -3,11 +3,18 @@ import { getQuestions } from "@/api/client";
 import type { QuestionListItem } from "@/types/api";
 import { ApiError } from "@/types/api";
 
+/** Minimum poll interval (starts here) */
+const MIN_POLL_INTERVAL = 2000; // 2 seconds
+/** Maximum poll interval (backs off to this) */
+const MAX_POLL_INTERVAL = 30000; // 30 seconds
+/** Multiplier for exponential backoff */
+const BACKOFF_MULTIPLIER = 1.5;
+
 interface UseQuestionsOptions {
     /** Maximum number of questions to fetch (default: 20) */
     limit?: number;
-    /** Poll interval in ms when no questions available (default: 2000). Set to 0 to disable. */
-    pollWhenEmpty?: number;
+    /** Enable polling when no questions available (default: true) */
+    enablePolling?: boolean;
 }
 
 interface UseQuestionsResult {
@@ -19,19 +26,40 @@ interface UseQuestionsResult {
 
 /**
  * Hook for fetching and managing the list of open questions.
- * Automatically polls for new questions when the list is empty.
+ * 
+ * Features:
+ * - Automatically polls for new questions when the list is empty
+ * - Uses exponential backoff (2s → 30s) to reduce API calls over time
+ * - Pauses polling when the browser tab is hidden (Visibility API)
+ * - Resets to fast polling when tab becomes visible again
  *
  * @param options - Configuration options
  * @returns Questions data, loading state, error state, and refetch function
  */
 export function useQuestions(options: UseQuestionsOptions = {}): UseQuestionsResult {
-    const { limit = 20, pollWhenEmpty = 2000 } = options;
+    const { limit = 20, enablePolling = true } = options;
 
     const [questions, setQuestions] = useState<QuestionListItem[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<Error | null>(null);
+    
     const pollTimeoutRef = useRef<number | null>(null);
     const isMountedRef = useRef(true);
+    const currentIntervalRef = useRef(MIN_POLL_INTERVAL);
+    const isPollingRef = useRef(false);
+
+    // Clear any pending poll timeout
+    const clearPollTimeout = useCallback(() => {
+        if (pollTimeoutRef.current !== null) {
+            window.clearTimeout(pollTimeoutRef.current);
+            pollTimeoutRef.current = null;
+        }
+    }, []);
+
+    // Reset backoff to minimum interval
+    const resetBackoff = useCallback(() => {
+        currentIntervalRef.current = MIN_POLL_INTERVAL;
+    }, []);
 
     // Full fetch with loading state (for initial load and manual refetch)
     const fetchQuestions = useCallback(async () => {
@@ -41,6 +69,10 @@ export function useQuestions(options: UseQuestionsOptions = {}): UseQuestionsRes
         try {
             const data = await getQuestions(limit);
             setQuestions(data);
+            // Reset backoff when we get questions
+            if (data.length > 0) {
+                resetBackoff();
+            }
         } catch (err) {
             if (err instanceof ApiError) {
                 setError(err);
@@ -52,37 +84,65 @@ export function useQuestions(options: UseQuestionsOptions = {}): UseQuestionsRes
         } finally {
             setIsLoading(false);
         }
-    }, [limit]);
+    }, [limit, resetBackoff]);
 
-    // Schedule next poll (self-rescheduling)
+    // Schedule next poll with exponential backoff
     const scheduleNextPoll = useCallback(() => {
-        if (pollTimeoutRef.current !== null) {
-            window.clearTimeout(pollTimeoutRef.current);
+        clearPollTimeout();
+
+        // Don't poll if disabled, unmounted, or tab is hidden
+        if (!enablePolling || !isMountedRef.current || document.hidden) {
+            return;
         }
 
-        if (pollWhenEmpty > 0 && isMountedRef.current) {
-            pollTimeoutRef.current = window.setTimeout(async () => {
+        const interval = currentIntervalRef.current;
+
+        pollTimeoutRef.current = window.setTimeout(async () => {
+            if (!isMountedRef.current || document.hidden) return;
+
+            try {
+                const data = await getQuestions(limit);
                 if (!isMountedRef.current) return;
 
-                try {
-                    const data = await getQuestions(limit);
-                    if (!isMountedRef.current) return;
+                setQuestions(data);
 
-                    setQuestions(data);
-
-                    // If still empty, schedule another poll
-                    if (data.length === 0) {
-                        scheduleNextPoll();
-                    }
-                } catch {
-                    // On error, try again
-                    if (isMountedRef.current) {
-                        scheduleNextPoll();
-                    }
+                if (data.length === 0) {
+                    // Increase backoff for next poll (exponential)
+                    currentIntervalRef.current = Math.min(
+                        currentIntervalRef.current * BACKOFF_MULTIPLIER,
+                        MAX_POLL_INTERVAL
+                    );
+                    // Schedule another poll
+                    scheduleNextPoll();
+                } else {
+                    // Got questions - reset backoff
+                    resetBackoff();
                 }
-            }, pollWhenEmpty);
-        }
-    }, [limit, pollWhenEmpty]);
+            } catch {
+                // On error, continue polling with backoff
+                if (isMountedRef.current) {
+                    currentIntervalRef.current = Math.min(
+                        currentIntervalRef.current * BACKOFF_MULTIPLIER,
+                        MAX_POLL_INTERVAL
+                    );
+                    scheduleNextPoll();
+                }
+            }
+        }, interval);
+    }, [limit, enablePolling, clearPollTimeout, resetBackoff]);
+
+    // Start polling
+    const startPolling = useCallback(() => {
+        if (isPollingRef.current) return;
+        isPollingRef.current = true;
+        scheduleNextPoll();
+    }, [scheduleNextPoll]);
+
+    // Stop polling
+    const stopPolling = useCallback(() => {
+        isPollingRef.current = false;
+        clearPollTimeout();
+    }, [clearPollTimeout]);
 
     // Initial fetch
     useEffect(() => {
@@ -91,25 +151,39 @@ export function useQuestions(options: UseQuestionsOptions = {}): UseQuestionsRes
 
         return () => {
             isMountedRef.current = false;
-            if (pollTimeoutRef.current !== null) {
-                window.clearTimeout(pollTimeoutRef.current);
+            clearPollTimeout();
+        };
+    }, [fetchQuestions, clearPollTimeout]);
+
+    // Handle visibility change - pause/resume polling
+    useEffect(() => {
+        const handleVisibilityChange = () => {
+            if (document.hidden) {
+                // Tab hidden - stop polling
+                stopPolling();
+            } else {
+                // Tab visible - reset backoff and resume if needed
+                resetBackoff();
+                if (questions.length === 0 && !isLoading && !error) {
+                    startPolling();
+                }
             }
         };
-    }, [fetchQuestions]);
+
+        document.addEventListener("visibilitychange", handleVisibilityChange);
+        return () => {
+            document.removeEventListener("visibilitychange", handleVisibilityChange);
+        };
+    }, [questions.length, isLoading, error, startPolling, stopPolling, resetBackoff]);
 
     // Start/stop polling based on questions state
     useEffect(() => {
-        if (!isLoading && !error && questions.length === 0) {
-            // Start polling when empty
-            scheduleNextPoll();
+        if (!isLoading && !error && questions.length === 0 && !document.hidden) {
+            startPolling();
         } else {
-            // Stop polling when we have questions or there's an error
-            if (pollTimeoutRef.current !== null) {
-                window.clearTimeout(pollTimeoutRef.current);
-                pollTimeoutRef.current = null;
-            }
+            stopPolling();
         }
-    }, [questions.length, isLoading, error, scheduleNextPoll]);
+    }, [questions.length, isLoading, error, startPolling, stopPolling]);
 
     return {
         questions,
