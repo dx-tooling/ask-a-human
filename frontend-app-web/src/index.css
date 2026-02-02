@@ -1,0 +1,34 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Base styles */
+@layer base {
+    :root {
+        font-synthesis: none;
+        text-rendering: optimizeLegibility;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* Light theme (default) */
+    html {
+        @apply bg-gray-50 text-gray-900;
+    }
+
+    /* Dark theme */
+    html.dark {
+        @apply bg-gray-900 text-gray-100;
+    }
+
+    body {
+        @apply min-h-screen font-sans;
+    }
+
+    /* Transition for theme changes */
+    html {
+        transition:
+            background-color 0.2s ease-in-out,
+            color 0.2s ease-in-out;
+    }
+}
