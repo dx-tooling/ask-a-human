@@ -1,0 +1,37 @@
+---
+description: Read project planning docs before starting any task
+alwaysApply: true
+---
+
+# Project Context Loading
+
+Before starting any task, read these files to understand the project:
+
+## Required Reading (Every Session)
+
+1. **`HOWTO.md`** - Project structure and workflow overview
+2. **`planning/tasks/task-management.md`** - How to work with tasks
+3. **`planning/tasks/in-progress/`** - Check for active work
+4. **`planning/tasks/todo/`** - Available tasks
+
+## Reference as Needed
+
+- **`planning/fundamentals/`** - Core constraints, accounts, credentials
+- **`planning/architectural-decision-records/`** - Technical decisions (ADRs)
+- **`planning/product-requirements-document/`** - Feature specs (PRDs)
+- **`planning/memory/`** - Learnings, patterns, gotchas, conventions
+
+## Task Workflow
+
+When working on tasks, follow the process in `task-management.md`:
+
+1. **Start**: Move task from `todo/` to `in-progress/`, add `started:` date
+2. **Work**: Check off acceptance criteria, capture learnings in `planning/memory/`
+3. **Complete**: Move to `done/`, add `completed:` date, update ADRs/PRDs if needed
+
+## Key Principles
+
+- Tasks reference source ADRs/PRDs - read them for full context
+- Update documentation when implementation reveals better approaches
+- Capture non-obvious learnings in `planning/memory/`
+- Never commit secrets from `secrets/` directory
