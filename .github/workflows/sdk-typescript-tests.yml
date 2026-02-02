@@ -1,0 +1,39 @@
+name: TypeScript SDK Tests
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "sdk-typescript/**"
+      - ".github/workflows/sdk-typescript-tests.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "sdk-typescript/**"
+      - ".github/workflows/sdk-typescript-tests.yml"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: sdk-typescript
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: sdk-typescript/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests with coverage
+        env:
+          CI: true
+        run: make test-coverage
