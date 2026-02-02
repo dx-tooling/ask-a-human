@@ -32,4 +32,4 @@ File `secrets/ask-a-human-poc-firebase-adminsdk-fbsvc-3a666671a0.json` looks lik
 }
 ```
 
-We have full control over domain `aah.dx-tooling.org`, including DNS records management. This domain is not registered through Amazon Registrar / Route53; DNS management happens at German hoster IONOS.
+We have full control over domain `ask-a-human.com`, including DNS records management. This domain is registered through German hoster IONOS (not Amazon Registrar / Route53).

@@ -25,7 +25,7 @@ We will implement a **RESTful HTTP API** with two logical groupings:
 - **Agent API** - For LLM integrations (`/agent/*`)
 - **Human API** - For the PWA frontend (`/human/*`)
 
-Base URL: `https://api.aah.dx-tooling.org`
+Base URL: `https://api.ask-a-human.com`
 
 ---
 

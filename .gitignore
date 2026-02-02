@@ -1,2 +1,42 @@
+# IDE
 .idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Secrets
 secrets/
+
+# Terraform
+**/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+tfplan
+crash.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Note: .terraform.lock.hcl IS committed (locks provider versions)
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Node (for living-styleguide and future frontend)
+node_modules/
+dist/
+.cache/
+*.log
+
+# Python (for future Lambda functions)
+__pycache__/
+*.py[cod]
+*$py.class
+.env
+.venv/
+venv/
+*.egg-info/

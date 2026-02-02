@@ -175,7 +175,7 @@ def dispatch_notifications(question):
   },
   "webpush": {
     "fcm_options": {
-      "link": "https://aah.dx-tooling.org/q/abc123"
+      "link": "https://ask-a-human.com/q/abc123"
     }
   }
 }

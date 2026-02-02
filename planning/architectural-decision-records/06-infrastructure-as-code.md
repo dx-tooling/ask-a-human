@@ -106,7 +106,7 @@ infrastructure/
 - S3 bucket for static assets
 - CloudFront distribution
 - ACM certificate
-- Custom domain (aah.dx-tooling.org)
+- Custom domain (ask-a-human.com)
 
 ### notifications/
 - SQS queue for notification jobs
@@ -124,7 +124,7 @@ infrastructure/
 
 ## Domain Configuration
 
-**Domain:** `aah.dx-tooling.org`  
+**Domain:** `ask-a-human.com`  
 **DNS Provider:** IONOS (not Route53)
 
 ### SSL Certificate (ACM)
@@ -133,11 +133,11 @@ Since DNS is not in Route53, we use DNS validation with manual CNAME records:
 
 ```hcl
 resource "aws_acm_certificate" "main" {
-  domain_name       = "aah.dx-tooling.org"
+  domain_name       = "ask-a-human.com"
   validation_method = "DNS"
   
   subject_alternative_names = [
-    "api.aah.dx-tooling.org"
+    "api.ask-a-human.com"
   ]
   
   lifecycle {
@@ -163,7 +163,7 @@ output "acm_validation_records" {
 
 ```hcl
 resource "aws_cloudfront_distribution" "frontend" {
-  aliases = ["aah.dx-tooling.org"]
+  aliases = ["ask-a-human.com"]
   
   origin {
     domain_name = aws_s3_bucket.frontend.bucket_regional_domain_name
@@ -196,7 +196,7 @@ resource "aws_cloudfront_distribution" "frontend" {
 }
 
 output "cloudfront_domain" {
-  description = "CloudFront domain - create CNAME at IONOS pointing aah.dx-tooling.org to this"
+  description = "CloudFront domain - create CNAME at IONOS pointing ask-a-human.com to this"
   value       = aws_cloudfront_distribution.frontend.domain_name
 }
 ```
@@ -205,7 +205,7 @@ output "cloudfront_domain" {
 
 ```hcl
 resource "aws_apigatewayv2_domain_name" "api" {
-  domain_name = "api.aah.dx-tooling.org"
+  domain_name = "api.ask-a-human.com"
   
   domain_name_configuration {
     certificate_arn = aws_acm_certificate.main.arn
@@ -215,7 +215,7 @@ resource "aws_apigatewayv2_domain_name" "api" {
 }
 
 output "api_gateway_domain" {
-  description = "API Gateway domain - create CNAME at IONOS pointing api.aah.dx-tooling.org to this"
+  description = "API Gateway domain - create CNAME at IONOS pointing api.ask-a-human.com to this"
   value       = aws_apigatewayv2_domain_name.api.domain_name_configuration[0].target_domain_name
 }
 ```
@@ -230,8 +230,8 @@ output "api_gateway_domain" {
 # shared/backend.tf
 terraform {
   backend "s3" {
-    bucket         = "aah-terraform-state"
-    key            = "terraform.tfstate"
+    bucket         = "aah-terraform-state-325062206315"
+    key            = "prod/terraform.tfstate"
     region         = "us-west-1"
     encrypt        = true
     dynamodb_table = "aah-terraform-locks"
@@ -239,17 +239,24 @@ terraform {
 }
 ```
 
-We will also enable bucket versioning to protect against accidental state file corruption.
+Bucket versioning is enabled to protect against accidental state file corruption.
 
 ### State Bucket Bootstrap
 
-Created manually before first Terraform run:
+Created manually before first Terraform run (note: bucket name includes account ID for global uniqueness):
 
 ```bash
+# Assume AccountManager role first
+eval $(bash infrastructure/scripts/aws-assume-role.sh)
+
 aws s3api create-bucket \
-  --bucket aah-terraform-state \
+  --bucket aah-terraform-state-325062206315 \
   --region us-west-1 \
   --create-bucket-configuration LocationConstraint=us-west-1
+
+aws s3api put-bucket-versioning \
+  --bucket aah-terraform-state-325062206315 \
+  --versioning-configuration Status=Enabled
 
 aws dynamodb create-table \
   --table-name aah-terraform-locks \
@@ -321,8 +328,8 @@ terraform apply tfplan
 
 # 4. Add DNS records at IONOS (manual)
 # - CNAME for certificate validation
-# - CNAME for aah.dx-tooling.org → CloudFront
-# - CNAME for api.aah.dx-tooling.org → API Gateway
+# - CNAME for ask-a-human.com → CloudFront
+# - CNAME for api.ask-a-human.com → API Gateway
 
 # 5. Wait for certificate validation
 aws acm wait certificate-validated \

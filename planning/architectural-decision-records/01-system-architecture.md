@@ -78,7 +78,7 @@ We will use a **serverless AWS architecture** with the following components:
 #### API Gateway (HTTP API)
 - Serves both agent and human API endpoints
 - Handles rate limiting at the edge
-- Custom domain: `api.aah.dx-tooling.org`
+- Custom domain: `api.ask-a-human.com`
 
 #### Lambda Functions
 Source code: `backend-app/`
@@ -104,7 +104,7 @@ Source code: `frontend-app-web/`
 
 - Hosts the PWA static assets
 - Global CDN distribution
-- Custom domain: `aah.dx-tooling.org`
+- Custom domain: `ask-a-human.com`
 - HTTPS via ACM certificate
 
 #### Firebase Cloud Messaging (FCM)

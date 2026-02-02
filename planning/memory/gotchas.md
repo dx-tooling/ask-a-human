@@ -6,7 +6,21 @@ Non-obvious pitfalls encountered during implementation. Learn from our mistakes.
 
 ## AWS
 
-(Add AWS gotchas here)
+### S3 Bucket Names Are Globally Unique
+
+S3 bucket names must be unique across ALL AWS accounts worldwide. Always include account ID or another unique identifier in bucket names to avoid conflicts.
+
+Source: Task 01 - `aah-terraform-state` was taken, had to use `aah-terraform-state-325062206315`.
+
+### Must Assume Role Before Running Terraform
+
+The credentials in `secrets/AWS.txt` are for the IAM account, not the infra account. You must assume the `AccountManager` role before running any AWS CLI or Terraform commands:
+
+```bash
+eval $(bash infrastructure/scripts/aws-assume-role.sh)
+```
+
+Symptoms if you forget: "Access Denied" errors or operations happening in the wrong account.
 
 ---
 
@@ -28,7 +42,13 @@ Source: ADR-04 research.
 
 ## Terraform
 
-(Add Terraform gotchas here)
+### Always Initialize After Cloning
+
+After cloning the repo or switching branches, run `terraform init` before any other Terraform commands. The `.terraform` directory is gitignored.
+
+### Use Specific Terraform Version
+
+Use `/usr/local/bin/terraform-1.14.4` (not just `terraform`) to ensure consistent behavior across team members.
 
 ---
 

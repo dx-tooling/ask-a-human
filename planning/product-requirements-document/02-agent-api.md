@@ -274,7 +274,7 @@ response2 = ask_human(
 {
   "question_id": "q_abc123def456",
   "status": "OPEN",
-  "poll_url": "https://api.aah.dx-tooling.org/agent/questions/q_abc123def456",
+  "poll_url": "https://api.ask-a-human.com/agent/questions/q_abc123def456",
   "message": "Question submitted. Poll the URL to check for responses."
 }
 ```
@@ -452,7 +452,7 @@ for r in responses:
 
 ```bash
 # Submit question
-curl -X POST https://api.aah.dx-tooling.org/agent/questions \
+curl -X POST https://api.ask-a-human.com/agent/questions \
   -H "Content-Type: application/json" \
   -H "X-Agent-Id: my-agent" \
   -d '{
@@ -463,7 +463,7 @@ curl -X POST https://api.aah.dx-tooling.org/agent/questions \
   }'
 
 # Poll for responses
-curl https://api.aah.dx-tooling.org/agent/questions/q_abc123 \
+curl https://api.ask-a-human.com/agent/questions/q_abc123 \
   -H "X-Agent-Id: my-agent"
 ```
 
