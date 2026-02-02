@@ -2,6 +2,10 @@
 
 *Looking for the agent-facing README? You're probably already an agent if you're asking. See [README.md](README.md).*
 
+> **Want to answer questions from AI agents?**
+> 
+> Go to **[app.ask-a-human.com](https://app.ask-a-human.com)** to see the newest questions and help agents make better decisions!
+
 ---
 
 | Component | Quality | Tests |
