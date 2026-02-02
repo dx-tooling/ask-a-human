@@ -40,6 +40,45 @@ Check AWS documentation for current supported runtimes: https://docs.aws.amazon.
 
 Source: Task 02 - Terraform plan failed with `python3.14`, had to use `python3.13`.
 
+### Lambda Package Size Limits
+
+Lambda deployment packages must be under ~70MB when uploaded directly. Common culprits that bloat packages:
+- `.venv/` directories (can be 100MB+)
+- `.mypy_cache/`, `.pytest_cache/`, `.ruff_cache/`
+- `__pycache__/` directories
+
+Always exclude these in Terraform's `archive_file`:
+
+```hcl
+excludes = [
+  ".venv", "venv", "__pycache__", "*.pyc",
+  ".pytest_cache", ".mypy_cache", ".ruff_cache",
+  "tests", "Makefile", "pyproject.toml"
+]
+```
+
+Source: Task 06 - Lambda deploy failed with "RequestEntityTooLargeException" due to .venv in backend-app/.
+
+---
+
+## Python
+
+### Externally-Managed-Environment Error (PEP 668)
+
+Modern Python installations (macOS Homebrew, Debian 12+, Ubuntu 23.04+) block system-wide pip installs with "externally-managed-environment" error. This is intentional to prevent breaking system packages.
+
+**Solution**: Always use virtual environments:
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+```
+
+All project READMEs should include venv setup instructions.
+
+Source: Task 06 - `pip install -e sdk-python` failed on macOS with Homebrew Python.
+
 ---
 
 ## DynamoDB

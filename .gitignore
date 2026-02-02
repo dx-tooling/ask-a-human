@@ -32,7 +32,7 @@ dist/
 .cache/
 *.log
 
-# Python (for future Lambda functions)
+# Python
 __pycache__/
 *.py[cod]
 *$py.class
@@ -40,3 +40,11 @@ __pycache__/
 .venv/
 venv/
 *.egg-info/
+build/
+
+# Python testing/linting caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/

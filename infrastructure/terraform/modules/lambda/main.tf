@@ -103,10 +103,17 @@ data "archive_file" "lambda" {
     "__pycache__",
     "*.pyc",
     ".pytest_cache",
+    ".mypy_cache",
+    ".ruff_cache",
+    ".venv",
+    "venv",
     "tests",
     ".git",
     ".gitignore",
     "README.md",
+    "Makefile",
+    "pyproject.toml",
+    ".python-version",
   ]
 }
 

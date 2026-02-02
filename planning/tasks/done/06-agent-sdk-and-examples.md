@@ -4,6 +4,8 @@ title: Agent SDK, MCP Server, and Reference Implementation
 source: PRD-02, ADR-03
 priority: high
 created: 2026-02-02
+started: 2026-02-02
+completed: 2026-02-02
 ---
 
 # Agent SDK, MCP Server, and Reference Implementation
@@ -24,122 +26,122 @@ The goal is to provide agent developers with everything they need to integrate A
 ### Python SDK Package (`sdk-python/`)
 
 #### Project Setup
-- [ ] `pyproject.toml` configured with package metadata
-- [ ] Python 3.11+ compatibility (broad compatibility for agent developers)
-- [ ] Dependencies: `httpx`, `pydantic`
-- [ ] Package name: `ask-a-human`
-- [ ] Installable via `pip install -e sdk-python/`
+- [x] `pyproject.toml` configured with package metadata
+- [x] Python 3.11+ compatibility (broad compatibility for agent developers)
+- [x] Dependencies: `httpx`, `pydantic`
+- [x] Package name: `ask-a-human`
+- [x] Installable via `pip install -e sdk-python/`
 
 #### AskHumanClient (Low-level API wrapper)
-- [ ] `__init__(base_url, agent_id)` - Configure client
-- [ ] `submit_question(prompt, type, options, min_responses, timeout_seconds, audience)` - Submit question
-- [ ] `get_question(question_id)` - Poll for status and responses
-- [ ] Proper error handling with custom exceptions
-- [ ] Type hints for all public methods
-- [ ] Docstrings with usage examples
+- [x] `__init__(base_url, agent_id)` - Configure client
+- [x] `submit_question(prompt, type, options, min_responses, timeout_seconds, audience)` - Submit question
+- [x] `get_question(question_id)` - Poll for status and responses
+- [x] Proper error handling with custom exceptions
+- [x] Type hints for all public methods
+- [x] Docstrings with usage examples
 
 #### AskHumanOrchestrator (High-level async patterns)
-- [ ] `__init__(client, poll_interval)` - Configure orchestrator
-- [ ] `submit(prompt, **kwargs)` - Submit and track question
-- [ ] `await_responses(question_ids, min_responses, timeout)` - Block until ready
-- [ ] `poll_once(question_ids)` - Non-blocking status check
-- [ ] Exponential backoff for polling
-- [ ] Returns partial results on timeout
+- [x] `__init__(client, poll_interval)` - Configure orchestrator
+- [x] `submit(prompt, **kwargs)` - Submit and track question
+- [x] `await_responses(question_ids, min_responses, timeout)` - Block until ready
+- [x] `poll_once(question_ids)` - Non-blocking status check
+- [x] Exponential backoff for polling
+- [x] Returns partial results on timeout
 
 #### Type Definitions (`types.py`)
-- [ ] `QuestionType` - Literal["text", "multiple_choice"]
-- [ ] `QuestionStatus` - Literal["OPEN", "PARTIAL", "CLOSED", "EXPIRED"]
-- [ ] `QuestionSubmission` - Response from submit
-- [ ] `QuestionResponse` - Full question with responses
-- [ ] `HumanResponse` - Individual response (answer/selected_option, confidence)
+- [x] `QuestionType` - Literal["text", "multiple_choice"]
+- [x] `QuestionStatus` - Literal["OPEN", "PARTIAL", "CLOSED", "EXPIRED"]
+- [x] `QuestionSubmission` - Response from submit
+- [x] `QuestionResponse` - Full question with responses
+- [x] `HumanResponse` - Individual response (answer/selected_option, confidence)
 
 #### Exceptions (`exceptions.py`)
-- [ ] `AskHumanError` - Base exception
-- [ ] `ValidationError` - Invalid request
-- [ ] `QuestionNotFoundError` - 404 response
-- [ ] `RateLimitError` - 429 response
-- [ ] `ServerError` - 5xx response
+- [x] `AskHumanError` - Base exception
+- [x] `ValidationError` - Invalid request
+- [x] `QuestionNotFoundError` - 404 response
+- [x] `RateLimitError` - 429 response
+- [x] `ServerError` - 5xx response
 
 #### Tests
-- [ ] Unit tests for `AskHumanClient` with mocked responses
-- [ ] Unit tests for `AskHumanOrchestrator` with mocked client
-- [ ] Test error handling for various HTTP status codes
-- [ ] Test timeout and partial results behavior
+- [x] Unit tests for `AskHumanClient` with mocked responses
+- [x] Unit tests for `AskHumanOrchestrator` with mocked client
+- [x] Test error handling for various HTTP status codes
+- [x] Test timeout and partial results behavior
 
 #### Documentation
-- [ ] `README.md` with installation and usage examples
-- [ ] Inline examples in `examples/` directory
+- [x] `README.md` with installation and usage examples
+- [x] Inline examples in `examples/` directory
 
 ### MCP Tool Server (`mcp-server/`)
 
 #### Project Setup
-- [ ] `pyproject.toml` configured
-- [ ] Depends on `ask-a-human` SDK and `mcp` package
-- [ ] Runnable via `python -m ask_a_human_mcp`
+- [x] `pyproject.toml` configured
+- [x] Depends on `ask-a-human` SDK and `mcp` package
+- [x] Runnable via `python -m ask_a_human_mcp`
 
 #### Tools Implemented
-- [ ] `ask_human` tool - Submit a question
+- [x] `ask_human` tool - Submit a question
   - Input: question, type, options, audience, min_responses, timeout_seconds
   - Output: question_id, status, poll_url, message
-- [ ] `check_human_responses` tool - Check status and get responses
+- [x] `check_human_responses` tool - Check status and get responses
   - Input: question_id
   - Output: Full question status with responses
 
 #### Tool Schemas
-- [ ] JSON Schema matches PRD-02 specification
-- [ ] Clear descriptions for each parameter
-- [ ] Proper required/optional field marking
+- [x] JSON Schema matches PRD-02 specification
+- [x] Clear descriptions for each parameter
+- [x] Proper required/optional field marking
 
 #### Configuration
-- [ ] `ASK_A_HUMAN_BASE_URL` environment variable
-- [ ] `ASK_A_HUMAN_AGENT_ID` environment variable
-- [ ] Example configs for Cursor and Claude Desktop
+- [x] `ASK_A_HUMAN_BASE_URL` environment variable
+- [x] `ASK_A_HUMAN_AGENT_ID` environment variable
+- [x] Example configs for Cursor and Claude Desktop
 
 #### Documentation
-- [ ] `README.md` with setup instructions
-- [ ] Example MCP configuration files in `config/`
+- [x] `README.md` with setup instructions
+- [x] Example MCP configuration files in `config/`
 
 ### Reference Agent: Content Writer (`examples/content-writer-agent/`)
 
 #### Project Setup
-- [ ] `requirements.txt` with dependencies: `ask-a-human`, `openai`, `rich`
-- [ ] `README.md` with setup and usage instructions
-- [ ] OpenAI API key loaded from `secrets/openai-api-key.txt` or `OPENAI_API_KEY` env var
+- [x] `requirements.txt` with dependencies: `ask-a-human`, `openai`, `rich`
+- [x] `README.md` with setup and usage instructions
+- [x] OpenAI API key loaded from `secrets/openai-api-key.txt` or `OPENAI_API_KEY` env var
 
 #### Agent Behavior
-- [ ] Accepts content brief from user (CLI input)
-- [ ] Uses OpenAI to analyze brief and identify decision points
-- [ ] Asks humans for tone/style decisions via Ask-a-Human
-- [ ] Waits for human responses with progress indication
-- [ ] Generates final content incorporating human feedback
-- [ ] Beautiful terminal output using `rich`
+- [x] Accepts content brief from user (CLI input)
+- [x] Uses OpenAI to analyze brief and identify decision points
+- [x] Asks humans for tone/style decisions via Ask-a-Human
+- [x] Waits for human responses with progress indication
+- [x] Generates final content incorporating human feedback
+- [x] Beautiful terminal output using `rich`
 
 #### Human-in-the-Loop Integration
-- [ ] At least 2 decision points that trigger human questions
-- [ ] Uses multiple choice questions for clear decisions
-- [ ] Handles timeout/partial results gracefully
-- [ ] Shows human response summary before proceeding
+- [x] At least 2 decision points that trigger human questions
+- [x] Uses multiple choice questions for clear decisions
+- [x] Handles timeout/partial results gracefully
+- [x] Shows human response summary before proceeding
 
 #### Demo Quality
-- [ ] Works end-to-end with real API calls
-- [ ] Clear console output showing agent reasoning
-- [ ] Informative progress messages during wait periods
+- [x] Works end-to-end with real API calls
+- [x] Clear console output showing agent reasoning
+- [x] Informative progress messages during wait periods
 
 ### Documentation
 
 #### ADR-07: Agent Integration Patterns
-- [ ] Context: Why agents need async human input
-- [ ] Decision: Recommended patterns (multi-turn, orchestrator, checkpoint)
-- [ ] Covers async handling strategies
-- [ ] Covers partial results handling
-- [ ] References SDK and MCP implementations
+- [x] Context: Why agents need async human input
+- [x] Decision: Recommended patterns (multi-turn, orchestrator, checkpoint)
+- [x] Covers async handling strategies
+- [x] Covers partial results handling
+- [x] References SDK and MCP implementations
 
 #### Integration Guide (`planning/guides/agent-integration-guide.md`)
-- [ ] Quick start with SDK
-- [ ] Setting up MCP server
-- [ ] Patterns for different agent types (Cursor, autonomous, serverless)
-- [ ] Handling timeouts and partial results
-- [ ] Best practices for question formulation
+- [x] Quick start with SDK
+- [x] Setting up MCP server
+- [x] Patterns for different agent types (Cursor, autonomous, serverless)
+- [x] Handling timeouts and partial results
+- [x] Best practices for question formulation
 
 ## Out of Scope (This Task)
 
@@ -309,5 +311,5 @@ Expected flow:
 
 ## ADR/PRD Updates
 
-- Create ADR-07: Agent Integration Patterns
-- Update PRD-02 if any MCP tool schema changes are needed
+- [x] Create ADR-07: Agent Integration Patterns
+- [x] Update PRD-02 if any MCP tool schema changes are needed (none needed - schema matches spec)

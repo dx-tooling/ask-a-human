@@ -14,6 +14,31 @@ import type {
 } from "@/types/api";
 import { ApiError } from "@/types/api";
 
+/** LocalStorage key for the client fingerprint */
+const FINGERPRINT_KEY = "aah-fingerprint";
+
+/**
+ * Get or generate a client fingerprint.
+ *
+ * This fingerprint is used to:
+ * - Filter out questions the user has already answered
+ * - Track responses (anonymously)
+ *
+ * The fingerprint is stored in localStorage and persists across sessions.
+ */
+function getFingerprint(): string {
+    // Try to get existing fingerprint
+    let fingerprint = localStorage.getItem(FINGERPRINT_KEY);
+
+    if (!fingerprint) {
+        // Generate a new fingerprint (UUID v4)
+        fingerprint = crypto.randomUUID();
+        localStorage.setItem(FINGERPRINT_KEY, fingerprint);
+    }
+
+    return fingerprint;
+}
+
 /** Get the API base URL from environment */
 function getBaseUrl(): string {
     const url = import.meta.env["VITE_API_BASE_URL"] as string | undefined;
@@ -25,12 +50,13 @@ function getBaseUrl(): string {
     return url.replace(/\/$/, "");
 }
 
-/** Standard fetch options with JSON headers */
+/** Standard fetch options with JSON headers and fingerprint */
 function getDefaultOptions(): RequestInit {
     return {
         headers: {
             "Content-Type": "application/json",
             Accept: "application/json",
+            "X-Fingerprint": getFingerprint(),
         },
     };
 }

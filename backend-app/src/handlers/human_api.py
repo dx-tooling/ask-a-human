@@ -19,6 +19,7 @@ from ..models.question import (
 )
 from ..models.response import (
     Response,
+    get_answered_question_ids,
     save_response,
 )
 from ..utils.api_response import (
@@ -71,6 +72,9 @@ def handle_list_questions(event: dict[str, Any]) -> dict[str, Any]:
     Query parameters:
     - limit: Max results (default 20, max 50)
 
+    Headers:
+    - X-Fingerprint: User fingerprint to filter out already-answered questions
+
     Args:
         event: API Gateway event dictionary.
 
@@ -88,10 +92,33 @@ def handle_list_questions(event: dict[str, Any]) -> dict[str, Any]:
         except ValueError:
             pass
 
-    # Fetch open questions
-    questions = list_open_questions(limit=limit)
+    # Get fingerprint from header (for filtering already-answered questions)
+    headers = event.get("headers", {}) or {}
+    fingerprint_hash = headers.get("x-fingerprint")
 
-    logger.info("Listed %d open questions", len(questions))
+    # Get question IDs the user has already answered
+    answered_ids: set[str] = set()
+    if fingerprint_hash:
+        answered_ids = get_answered_question_ids(fingerprint_hash)
+
+    # Fetch open questions (fetch more to account for filtering)
+    # We fetch extra to compensate for filtered questions
+    fetch_limit = limit + len(answered_ids) if answered_ids else limit
+    fetch_limit = min(fetch_limit, 100)  # Cap at reasonable number
+    questions = list_open_questions(limit=fetch_limit)
+
+    # Filter out already-answered questions
+    if answered_ids:
+        questions = [q for q in questions if q.question_id not in answered_ids]
+
+    # Apply the original limit after filtering
+    questions = questions[:limit]
+
+    logger.info(
+        "Listed %d open questions (filtered %d already answered)",
+        len(questions),
+        len(answered_ids),
+    )
 
     return success(
         {

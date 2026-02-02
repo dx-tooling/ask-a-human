@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "ask-a-human": {
+      "command": "ask-a-human-mcp",
+      "env": {
+        "ASK_A_HUMAN_AGENT_ID": "your-agent-id-here"
+      }
+    }
+  }
+}

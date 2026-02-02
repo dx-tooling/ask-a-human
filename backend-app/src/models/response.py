@@ -131,3 +131,46 @@ def save_response(response: Response) -> None:
     """
     table = get_responses_table()
     table.put_item(Item=response.to_dynamo_item())
+
+
+def get_answered_question_ids(fingerprint_hash: str) -> set[str]:
+    """Get the set of question IDs that a fingerprint has already answered.
+
+    Uses the ByFingerprint GSI to efficiently query all responses
+    for a given fingerprint.
+
+    Args:
+        fingerprint_hash: The user's fingerprint hash.
+
+    Returns:
+        Set of question_id strings the user has already answered.
+    """
+    if not fingerprint_hash:
+        return set()
+
+    table = get_responses_table()
+
+    # Query the ByFingerprint GSI
+    # We only need question_id, so we could use ProjectionExpression
+    # but the GSI should project what we need
+    response = table.query(
+        IndexName="ByFingerprint",
+        KeyConditionExpression="fingerprint_hash = :fh",
+        ExpressionAttributeValues={":fh": fingerprint_hash},
+        ProjectionExpression="question_id",
+    )
+
+    question_ids = {item["question_id"] for item in response.get("Items", [])}
+
+    # Handle pagination if there are many responses
+    while "LastEvaluatedKey" in response:
+        response = table.query(
+            IndexName="ByFingerprint",
+            KeyConditionExpression="fingerprint_hash = :fh",
+            ExpressionAttributeValues={":fh": fingerprint_hash},
+            ProjectionExpression="question_id",
+            ExclusiveStartKey=response["LastEvaluatedKey"],
+        )
+        question_ids.update(item["question_id"] for item in response.get("Items", []))
+
+    return question_ids

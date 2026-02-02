@@ -1,0 +1,6 @@
+# Ask-a-Human SDK (install from local source)
+# pip install -e ../../sdk-python
+
+# Core dependencies
+openai>=1.0
+rich>=13.0

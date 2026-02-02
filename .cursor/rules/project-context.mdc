@@ -29,6 +29,23 @@ When working on tasks, follow the process in `task-management.md`:
 2. **Work**: Check off acceptance criteria, capture learnings in `planning/memory/`
 3. **Complete**: Move to `done/`, add `completed:` date, update ADRs/PRDs if needed
 
+## Deployment
+
+Deploy using scripts in `deployment/` - they handle AWS auth automatically:
+
+```bash
+# Deploy everything (backend + frontend)
+./deployment/deploy.sh
+
+# Backend only (Lambda via Terraform)
+./deployment/deploy.sh --backend-only
+
+# Frontend only (S3 + CloudFront)  
+./deployment/deploy.sh --frontend-only
+```
+
+Requires `secrets/AWS.txt` with IAM credentials (see `deployment/README.md`).
+
 ## Key Principles
 
 - Tasks reference source ADRs/PRDs - read them for full context
