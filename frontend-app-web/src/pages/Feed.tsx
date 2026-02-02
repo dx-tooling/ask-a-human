@@ -3,6 +3,7 @@ import { QuestionCard } from "@/components/QuestionCard";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { ErrorMessage } from "@/components/ErrorMessage";
 import { EmptyState } from "@/components/EmptyState";
+import { InfoBanner } from "@/components/InfoBanner";
 import { useQuestions } from "@/hooks/useQuestions";
 
 export function Feed() {
@@ -13,6 +14,8 @@ export function Feed() {
             <Header />
 
             <main className="flex-1 max-w-2xl mx-auto w-full px-4 py-6">
+                <InfoBanner />
+                
                 {isLoading ? (
                     <div className="flex items-center justify-center py-12">
                         <LoadingSpinner size="lg" />
