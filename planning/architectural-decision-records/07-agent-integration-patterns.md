@@ -26,6 +26,7 @@ We recommend three primary integration patterns, each suited to different agent 
 
 The agent submits a question and continues with other work, checking back later.
 
+**Python:**
 ```python
 # Submit question
 result = ask_human(
@@ -44,6 +45,26 @@ if responses.status in ["CLOSED", "PARTIAL"]:
     proceed_with_human_input(responses)
 ```
 
+**TypeScript:**
+```typescript
+// Submit question
+const result = await client.submitQuestion({
+  prompt: "Should I use approach A or B?",
+  type: "multiple_choice",
+  options: ["Approach A", "Approach B"],
+});
+
+// Continue with other work
+await doIndependentTask1();
+await doIndependentTask2();
+
+// Check for responses when needed
+const response = await client.getQuestion(result.questionId);
+if (response.status === "CLOSED" || response.status === "PARTIAL") {
+  proceedWithHumanInput(response);
+}
+```
+
 **Advantages:**
 - Agent stays productive during wait
 - No blocking of other operations
@@ -60,6 +81,7 @@ if responses.status in ["CLOSED", "PARTIAL"]:
 
 The agent polls periodically until responses arrive or a reasonable timeout.
 
+**Python:**
 ```python
 result = ask_human(
     question="Is this error message clear?",
@@ -76,6 +98,27 @@ for i in range(10):
 
 # Use whatever responses we got
 make_decision(responses)
+```
+
+**TypeScript (using Orchestrator):**
+```typescript
+const orchestrator = new AskHumanOrchestrator(client, { pollInterval: 30000 });
+
+const submission = await orchestrator.submit({
+  prompt: "Is this error message clear?",
+  type: "text",
+  minResponses: 3,
+  timeoutSeconds: 300,
+});
+
+// Wait with automatic exponential backoff
+const responses = await orchestrator.awaitResponses(
+  [submission.questionId],
+  { minResponses: 3, timeout: 300000 }
+);
+
+// Use whatever responses we got
+makeDecision(responses[submission.questionId]);
 ```
 
 **Advantages:**
@@ -122,18 +165,28 @@ Agent: I received 5 responses:
 
 ### SDK Support
 
-The Python SDK provides two levels of abstraction:
+Both the Python and TypeScript SDKs provide two levels of abstraction:
 
 **AskHumanClient** (low-level):
 - Direct API wrapper
-- `submit_question()` and `get_question()` methods
+- `submit_question()` / `submitQuestion()` and `get_question()` / `getQuestion()` methods
 - Agent manages polling/waiting
 
 **AskHumanOrchestrator** (high-level):
 - Handles polling with exponential backoff
-- `await_responses()` blocks until ready or timeout
-- `poll_once()` for non-blocking checks
+- `await_responses()` / `awaitResponses()` blocks until ready or timeout
+- `poll_once()` / `pollOnce()` for non-blocking checks
 - Configurable poll interval and max backoff
+- TypeScript SDK additionally supports `AbortController` for cancellation
+
+| Python SDK | TypeScript SDK |
+|------------|----------------|
+| `AskHumanClient` | `AskHumanClient` |
+| `AskHumanOrchestrator` | `AskHumanOrchestrator` |
+| `submit_question()` | `submitQuestion()` |
+| `get_question()` | `getQuestion()` |
+| `await_responses()` | `awaitResponses()` |
+| `poll_once()` | `pollOnce()` |
 
 ### MCP Tools Support
 
@@ -158,7 +211,7 @@ Agents should handle cases where:
 3. **Retry with different parameters:** Reduce min_responses or extend timeout
 4. **Escalate:** Inform user that human input wasn't available
 
-Example:
+**Python:**
 ```python
 responses = orchestrator.await_responses(
     question_ids=[qid],
@@ -178,6 +231,29 @@ else:
     # Insufficient responses
     confidence = "low"
     # Fall back to agent's analysis
+```
+
+**TypeScript:**
+```typescript
+const responses = await orchestrator.awaitResponses(
+  [questionId],
+  { minResponses: 5, timeout: 300000 }
+);
+
+const question = responses[questionId];
+
+let confidence: "high" | "medium" | "low";
+if (question.status === "CLOSED") {
+  // Full responses received
+  confidence = "high";
+} else if (question.status === "PARTIAL" && question.currentResponses >= 3) {
+  // Partial but usable
+  confidence = "medium";
+} else {
+  // Insufficient responses
+  confidence = "low";
+  // Fall back to agent's analysis
+}
 ```
 
 ## Exponential Backoff
@@ -224,5 +300,8 @@ The SDK's `AskHumanOrchestrator` implements this automatically.
 
 - [PRD-02: Agent API and MCP Tool](../product-requirements-document/02-agent-api.md)
 - [ADR-03: API Design](03-api-design.md)
-- [SDK Documentation](../../sdk-python/README.md)
+- [Python SDK Documentation](../../sdk-python/README.md)
+- [TypeScript SDK Documentation](../../sdk-typescript/README.md)
 - [MCP Server Documentation](../../mcp-server/README.md)
+- [Python Content Writer Example](../../examples/content-writer-agent/README.md)
+- [TypeScript Content Writer Example](../../examples/typescript-content-writer/README.md)
