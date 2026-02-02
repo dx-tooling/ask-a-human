@@ -57,7 +57,7 @@ Use the `exec` tool to make API calls. The base URL is `https://api.ask-a-human.
 ### Submit a Question
 
 ```bash
-curl -X POST https://api.ask-a-human.com/api/questions \
+curl -X POST https://api.ask-a-human.com/agent/questions \
   -H "Content-Type: application/json" \
   -H "X-Agent-ID: $ASK_A_HUMAN_AGENT_ID" \
   -d '{
@@ -91,7 +91,7 @@ curl -X POST https://api.ask-a-human.com/api/questions \
 ### Check Responses
 
 ```bash
-curl https://api.ask-a-human.com/api/questions/q_abc123def456 \
+curl https://api.ask-a-human.com/agent/questions/q_abc123def456 \
   -H "X-Agent-ID: $ASK_A_HUMAN_AGENT_ID"
 ```
 
@@ -297,8 +297,8 @@ This skill requires the `ASK_A_HUMAN_AGENT_ID` environment variable. Get your ag
 
 | Action | Command |
 |--------|---------|
-| Submit question | `POST /api/questions` with prompt, type, options |
-| Check responses | `GET /api/questions/{question_id}` |
+| Submit question | `POST /agent/questions` with prompt, type, options |
+| Check responses | `GET /agent/questions/{question_id}` |
 | Required header | `X-Agent-ID: $ASK_A_HUMAN_AGENT_ID` |
 
 | Status | Meaning |
