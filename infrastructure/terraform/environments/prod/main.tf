@@ -35,6 +35,20 @@ provider "aws" {
   }
 }
 
+# Provider for us-east-1 (required for CloudFront ACM certificates)
+provider "aws" {
+  alias  = "us_east_1"
+  region = "us-east-1"
+
+  default_tags {
+    tags = {
+      Project     = "ask-a-human"
+      Environment = var.environment
+      ManagedBy   = "terraform"
+    }
+  }
+}
+
 # =============================================================================
 # Database Module
 # Creates DynamoDB tables for questions, responses, subscriptions, user stats
@@ -143,8 +157,7 @@ module "api" {
   certificate_arn = aws_acm_certificate.main.arn
 
   cors_origins = [
-    "https://${var.domain_name}",
-    "https://www.${var.domain_name}",
+    "https://app.${var.domain_name}",
   ]
 
   agent_questions_lambda_invoke_arn = module.lambda_agent_questions.invoke_arn
@@ -153,4 +166,74 @@ module "api" {
   tags = {
     Component = "api"
   }
+}
+
+# =============================================================================
+# ACM Certificate for CloudFront (MUST be in us-east-1)
+# DNS validation - records must be added manually at IONOS
+# Note: Using app.ask-a-human.com because IONOS doesn't support CNAME on apex
+# =============================================================================
+resource "aws_acm_certificate" "cloudfront" {
+  provider          = aws.us_east_1
+  domain_name       = "app.${var.domain_name}"
+  validation_method = "DNS"
+
+  lifecycle {
+    create_before_destroy = true
+  }
+
+  tags = {
+    Name      = "aah-cloudfront-certificate"
+    Component = "ssl"
+  }
+}
+
+# =============================================================================
+# Frontend Module
+# S3 bucket and CloudFront distribution for static website hosting
+# Note: Using app.ask-a-human.com because IONOS doesn't support CNAME on apex
+# =============================================================================
+module "frontend" {
+  source = "../../modules/frontend"
+
+  bucket_name     = "aah-frontend-${data.aws_caller_identity.current.account_id}"
+  domain_name     = "app.${var.domain_name}"
+  certificate_arn = aws_acm_certificate.cloudfront.arn
+  api_domain      = var.api_subdomain
+
+  tags = {
+    Component = "frontend"
+  }
+}
+
+# Get current AWS account ID for unique bucket naming
+data "aws_caller_identity" "current" {}
+
+# =============================================================================
+# Outputs for DNS Configuration
+# =============================================================================
+output "cloudfront_domain_name" {
+  description = "CloudFront domain - create CNAME at IONOS pointing app.ask-a-human.com to this"
+  value       = module.frontend.cloudfront_domain_name
+}
+
+output "cloudfront_certificate_validation" {
+  description = "DNS records to add at IONOS for CloudFront certificate validation"
+  value = {
+    for dvo in aws_acm_certificate.cloudfront.domain_validation_options : dvo.domain_name => {
+      name  = dvo.resource_record_name
+      type  = dvo.resource_record_type
+      value = dvo.resource_record_value
+    }
+  }
+}
+
+output "frontend_bucket_name" {
+  description = "S3 bucket name for frontend deployment"
+  value       = module.frontend.bucket_name
+}
+
+output "cloudfront_distribution_id" {
+  description = "CloudFront distribution ID for cache invalidation"
+  value       = module.frontend.cloudfront_distribution_id
 }

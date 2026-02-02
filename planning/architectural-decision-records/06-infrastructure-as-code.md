@@ -105,8 +105,8 @@ infrastructure/
 ### frontend/
 - S3 bucket for static assets
 - CloudFront distribution
-- ACM certificate
-- Custom domain (ask-a-human.com)
+- ACM certificate (us-east-1)
+- Custom domain (`app.ask-a-human.com`)
 
 ### notifications/
 - SQS queue for notification jobs
@@ -125,21 +125,33 @@ infrastructure/
 ## Domain Configuration
 
 **Domain:** `ask-a-human.com`  
+**Frontend URL:** `https://app.ask-a-human.com`  
+**API URL:** `https://api.ask-a-human.com`  
 **DNS Provider:** IONOS (not Route53)
+
+### IONOS Apex Domain Limitation
+
+IONOS does not support CNAME records on the apex domain (`ask-a-human.com`). Since CloudFront requires a CNAME to point to its distribution, the frontend is served from `app.ask-a-human.com` instead.
+
+**DNS configuration at IONOS:**
+- `app.ask-a-human.com` → CNAME to CloudFront distribution
+- `ask-a-human.com` → HTTP redirect to `app.ask-a-human.com`
+- `www.ask-a-human.com` → HTTP redirect to `app.ask-a-human.com`
 
 ### SSL Certificates (ACM)
 
 **Important:** CloudFront requires certificates in `us-east-1`. API Gateway regional endpoints use certificates in the same region (`us-west-1`). We need **two certificates**:
 
-| Certificate | Region | Used By |
-|-------------|--------|---------|
-| `aws_acm_certificate.cloudfront` | us-east-1 | CloudFront (frontend) |
-| `aws_acm_certificate.api` | us-west-1 | API Gateway (API) |
+| Certificate | Region | Domain | Used By |
+|-------------|--------|--------|---------|
+| `aws_acm_certificate.cloudfront` | us-east-1 | `app.ask-a-human.com` | CloudFront (frontend) |
+| `aws_acm_certificate.main` | us-west-1 | `ask-a-human.com`, `api.ask-a-human.com` | API Gateway (API) |
 
 Since DNS is not in Route53, we use DNS validation with manual CNAME records:
 
 ```hcl
 # Certificate for CloudFront (MUST be in us-east-1)
+# Uses app.ask-a-human.com because IONOS doesn't support CNAME on apex
 provider "aws" {
   alias  = "us_east_1"
   region = "us-east-1"
@@ -147,7 +159,7 @@ provider "aws" {
 
 resource "aws_acm_certificate" "cloudfront" {
   provider          = aws.us_east_1
-  domain_name       = "ask-a-human.com"
+  domain_name       = "app.${var.domain_name}"  # app.ask-a-human.com
   validation_method = "DNS"
   
   lifecycle {
@@ -156,9 +168,13 @@ resource "aws_acm_certificate" "cloudfront" {
 }
 
 # Certificate for API Gateway (same region as API)
-resource "aws_acm_certificate" "api" {
-  domain_name       = "api.ask-a-human.com"
+resource "aws_acm_certificate" "main" {
+  domain_name       = var.domain_name  # ask-a-human.com
   validation_method = "DNS"
+  
+  subject_alternative_names = [
+    var.api_subdomain  # api.ask-a-human.com
+  ]
   
   lifecycle {
     create_before_destroy = true
@@ -174,7 +190,7 @@ output "acm_validation_records" {
         value = dvo.resource_record_value
       }
     },
-    { for dvo in aws_acm_certificate.api.domain_validation_options : dvo.domain_name => {
+    { for dvo in aws_acm_certificate.main.domain_validation_options : dvo.domain_name => {
         name  = dvo.resource_record_name
         type  = dvo.resource_record_type
         value = dvo.resource_record_value
@@ -190,7 +206,8 @@ output "acm_validation_records" {
 
 ```hcl
 resource "aws_cloudfront_distribution" "frontend" {
-  aliases = ["ask-a-human.com"]
+  # Uses app.ask-a-human.com because IONOS doesn't support CNAME on apex
+  aliases = ["app.${var.domain_name}"]  # app.ask-a-human.com
   
   origin {
     domain_name = aws_s3_bucket.frontend.bucket_regional_domain_name
@@ -223,7 +240,7 @@ resource "aws_cloudfront_distribution" "frontend" {
 }
 
 output "cloudfront_domain" {
-  description = "CloudFront domain - create CNAME at IONOS pointing ask-a-human.com to this"
+  description = "CloudFront domain - create CNAME at IONOS pointing app.ask-a-human.com to this"
   value       = aws_cloudfront_distribution.frontend.domain_name
 }
 ```
@@ -355,8 +372,10 @@ terraform apply tfplan
 
 # 4. Add DNS records at IONOS (manual)
 # - CNAME for certificate validation
-# - CNAME for ask-a-human.com → CloudFront
+# - CNAME for app.ask-a-human.com → CloudFront
 # - CNAME for api.ask-a-human.com → API Gateway
+# - HTTP redirect for ask-a-human.com → app.ask-a-human.com
+# - HTTP redirect for www.ask-a-human.com → app.ask-a-human.com
 
 # 5. Wait for certificate validation
 aws acm wait certificate-validated \
