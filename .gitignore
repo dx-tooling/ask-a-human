@@ -48,4 +48,6 @@ build/
 .ruff_cache/
 .coverage
 htmlcov/
-openclaw/
+
+# Local OpenClaw installation (not part of this repo)
+/openclaw/

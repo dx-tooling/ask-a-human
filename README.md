@@ -24,6 +24,7 @@ Ask-a-Human provides a simple API and SDKs for LLM agents to request human feedb
 | [Python SDK](sdk-python/) | Python client library for agents |
 | [TypeScript SDK](sdk-typescript/) | TypeScript/Node.js client library for agents |
 | [MCP Server](mcp-server/) | Model Context Protocol server for Claude Desktop/Cursor |
+| [OpenClaw Skill](integrations/openclaw/) | Skill for OpenClaw personal AI assistant |
 
 ## Quick Start
 
@@ -64,6 +65,7 @@ const result = await client.submitQuestion({
 - [Architecture Decision Records](planning/architectural-decision-records/) - Technical decisions
 - [Product Requirements](planning/product-requirements-document/) - Feature specifications
 - [Agent Integration Guide](planning/guides/agent-integration-guide.md) - Integration patterns
+- [OpenClaw Integration](planning/guides/openclaw-integration.md) - OpenClaw skill quick start
 
 ## Development
 
