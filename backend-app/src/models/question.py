@@ -1,22 +1,21 @@
-"""
-Question model and DynamoDB operations.
+"""Question model and DynamoDB operations.
+
 Reference: ADR-02 Database Schema, ADR-03 API Design
 """
 
 import uuid
+from dataclasses import dataclass
 from datetime import datetime, timezone
-from dataclasses import dataclass, field, asdict
-from typing import Literal
+from typing import Any, Literal
 
 from boto3.dynamodb.conditions import Key
 
 from ..utils.dynamodb import (
+    deserialize_item,
     get_questions_table,
     get_responses_table,
     serialize_item,
-    deserialize_item,
 )
-
 
 # Question status values
 QuestionStatus = Literal["OPEN", "PARTIAL", "CLOSED", "EXPIRED"]
@@ -30,14 +29,18 @@ MAX_PROMPT_LENGTH = 2000
 
 
 def generate_question_id() -> str:
-    """Generate a unique question ID with q_ prefix."""
+    """Generate a unique question ID with q_ prefix.
+
+    Returns:
+        A unique question ID string starting with 'q_'.
+    """
     return f"q_{uuid.uuid4().hex[:12]}"
 
 
 @dataclass
 class Question:
     """Question data model matching DynamoDB schema."""
-    
+
     question_id: str
     prompt: str
     type: Literal["text", "multiple_choice"]
@@ -50,7 +53,7 @@ class Question:
     audience: list[str] | None = None
     agent_id: str | None = None
     closed_at: str | None = None
-    
+
     @classmethod
     def create(
         cls,
@@ -62,13 +65,26 @@ class Question:
         audience: list[str] | None = None,
         agent_id: str | None = None,
     ) -> "Question":
-        """Create a new question with generated ID and timestamps."""
+        """Create a new question with generated ID and timestamps.
+
+        Args:
+            prompt: The question text.
+            question_type: Either 'text' or 'multiple_choice'.
+            min_responses: Minimum responses required (default 5).
+            timeout_seconds: Seconds until expiration (default 3600).
+            options: List of options for multiple choice questions.
+            audience: Target audience tags.
+            agent_id: Optional agent identifier.
+
+        Returns:
+            A new Question instance.
+        """
         now = datetime.now(timezone.utc)
         expires_at = datetime.fromtimestamp(
             now.timestamp() + timeout_seconds,
             tz=timezone.utc,
         )
-        
+
         return cls(
             question_id=generate_question_id(),
             prompt=prompt,
@@ -82,9 +98,13 @@ class Question:
             audience=audience or ["general"],
             agent_id=agent_id,
         )
-    
-    def to_dynamo_item(self) -> dict:
-        """Convert to DynamoDB item format."""
+
+    def to_dynamo_item(self) -> dict[str, Any]:
+        """Convert to DynamoDB item format.
+
+        Returns:
+            Dictionary suitable for DynamoDB put_item.
+        """
         item = {
             "question_id": self.question_id,
             "prompt": self.prompt,
@@ -104,10 +124,17 @@ class Question:
         if self.closed_at:
             item["closed_at"] = self.closed_at
         return serialize_item(item)
-    
+
     @classmethod
-    def from_dynamo_item(cls, item: dict) -> "Question":
-        """Create Question from DynamoDB item."""
+    def from_dynamo_item(cls, item: dict[str, Any]) -> "Question":
+        """Create Question from DynamoDB item.
+
+        Args:
+            item: DynamoDB item dictionary.
+
+        Returns:
+            Question instance.
+        """
         data = deserialize_item(item)
         return cls(
             question_id=data["question_id"],
@@ -123,9 +150,16 @@ class Question:
             agent_id=data.get("agent_id"),
             closed_at=data.get("closed_at"),
         )
-    
-    def to_agent_response(self, responses: list[dict] | None = None) -> dict:
-        """Convert to API response format for agent polling."""
+
+    def to_agent_response(self, responses: list[dict[str, Any]] | None = None) -> dict[str, Any]:
+        """Convert to API response format for agent polling.
+
+        Args:
+            responses: Optional list of response dictionaries.
+
+        Returns:
+            Dictionary formatted for agent API response.
+        """
         result = {
             "question_id": self.question_id,
             "status": self.status,
@@ -142,9 +176,13 @@ class Question:
         if responses is not None:
             result["responses"] = responses
         return result
-    
-    def to_human_list_item(self) -> dict:
-        """Convert to API response format for human question list."""
+
+    def to_human_list_item(self) -> dict[str, Any]:
+        """Convert to API response format for human question list.
+
+        Returns:
+            Dictionary formatted for human list API response.
+        """
         result = {
             "question_id": self.question_id,
             "prompt": self.prompt,
@@ -157,9 +195,16 @@ class Question:
         if self.audience:
             result["audience"] = self.audience
         return result
-    
-    def to_human_detail(self, can_answer: bool = True) -> dict:
-        """Convert to API response format for single question detail."""
+
+    def to_human_detail(self, can_answer: bool = True) -> dict[str, Any]:
+        """Convert to API response format for single question detail.
+
+        Args:
+            can_answer: Whether the user can answer this question.
+
+        Returns:
+            Dictionary formatted for human detail API response.
+        """
         result = {
             "question_id": self.question_id,
             "prompt": self.prompt,
@@ -175,13 +220,24 @@ class Question:
 
 
 def save_question(question: Question) -> None:
-    """Save a question to DynamoDB."""
+    """Save a question to DynamoDB.
+
+    Args:
+        question: Question instance to save.
+    """
     table = get_questions_table()
     table.put_item(Item=question.to_dynamo_item())
 
 
 def get_question(question_id: str) -> Question | None:
-    """Fetch a question by ID."""
+    """Fetch a question by ID.
+
+    Args:
+        question_id: The question ID to fetch.
+
+    Returns:
+        Question instance if found, None otherwise.
+    """
     table = get_questions_table()
     response = table.get_item(Key={"question_id": question_id})
     item = response.get("Item")
@@ -190,21 +246,23 @@ def get_question(question_id: str) -> Question | None:
     return Question.from_dynamo_item(item)
 
 
-def get_question_with_responses(question_id: str) -> tuple[Question | None, list[dict]]:
-    """
-    Fetch a question and all its responses.
-    Returns (question, responses) tuple.
+def get_question_with_responses(question_id: str) -> tuple[Question | None, list[dict[str, Any]]]:
+    """Fetch a question and all its responses.
+
+    Args:
+        question_id: The question ID to fetch.
+
+    Returns:
+        Tuple of (Question or None, list of response dicts).
     """
     question = get_question(question_id)
     if not question:
         return None, []
-    
+
     # Query responses table
     responses_table = get_responses_table()
-    response = responses_table.query(
-        KeyConditionExpression=Key("question_id").eq(question_id)
-    )
-    
+    response = responses_table.query(KeyConditionExpression=Key("question_id").eq(question_id))
+
     # Format responses for API output (exclude internal fields)
     responses = []
     for item in response.get("Items", []):
@@ -217,18 +275,24 @@ def get_question_with_responses(question_id: str) -> tuple[Question | None, list
         if "confidence" in data:
             resp["confidence"] = data["confidence"]
         responses.append(resp)
-    
+
     return question, responses
 
 
 def list_open_questions(limit: int = 20) -> list[Question]:
-    """
-    List questions with OPEN or PARTIAL status.
+    """List questions with OPEN or PARTIAL status.
+
     Uses the ByStatus GSI.
+
+    Args:
+        limit: Maximum number of questions to return.
+
+    Returns:
+        List of Question instances.
     """
     table = get_questions_table()
     questions = []
-    
+
     # Query for OPEN status
     response = table.query(
         IndexName="ByStatus",
@@ -238,7 +302,7 @@ def list_open_questions(limit: int = 20) -> list[Question]:
     )
     for item in response.get("Items", []):
         questions.append(Question.from_dynamo_item(item))
-    
+
     # If we have room, also get PARTIAL status
     remaining = limit - len(questions)
     if remaining > 0:
@@ -250,21 +314,26 @@ def list_open_questions(limit: int = 20) -> list[Question]:
         )
         for item in response.get("Items", []):
             questions.append(Question.from_dynamo_item(item))
-    
+
     return questions
 
 
 def increment_response_count(question_id: str, min_responses: int) -> str:
-    """
-    Increment the response count and update status if needed.
-    Returns the new status.
-    
+    """Increment the response count and update status if needed.
+
     Status transitions:
     - OPEN -> PARTIAL (first response)
     - PARTIAL -> CLOSED (min_responses reached)
+
+    Args:
+        question_id: The question ID to update.
+        min_responses: Minimum responses needed for CLOSED status.
+
+    Returns:
+        The new status string.
     """
     table = get_questions_table()
-    
+
     # Update with conditional logic
     response = table.update_item(
         Key={"question_id": question_id},
@@ -289,17 +358,23 @@ def increment_response_count(question_id: str, min_responses: int) -> str:
         },
         ReturnValues="ALL_NEW",
     )
-    
-    return response["Attributes"]["status"]
+
+    return str(response["Attributes"]["status"])
 
 
 def update_question_status(question_id: str, new_responses: int, min_responses: int) -> str:
-    """
-    Update the response count and status.
-    Returns the new status.
+    """Update the response count and status.
+
+    Args:
+        question_id: The question ID to update.
+        new_responses: The new response count.
+        min_responses: Minimum responses needed for CLOSED status.
+
+    Returns:
+        The new status string.
     """
     table = get_questions_table()
-    
+
     # Determine new status
     if new_responses >= min_responses:
         new_status = "CLOSED"
@@ -310,22 +385,22 @@ def update_question_status(question_id: str, new_responses: int, min_responses: 
     else:
         new_status = "OPEN"
         closed_at = None
-    
+
     update_expr = "SET current_responses = :count, #status = :status"
-    expr_values: dict = {
+    expr_values: dict[str, Any] = {
         ":count": new_responses,
         ":status": new_status,
     }
-    
+
     if closed_at:
         update_expr += ", closed_at = :closed_at"
         expr_values[":closed_at"] = closed_at
-    
+
     table.update_item(
         Key={"question_id": question_id},
         UpdateExpression=update_expr,
         ExpressionAttributeNames={"#status": "status"},
         ExpressionAttributeValues=expr_values,
     )
-    
+
     return new_status
