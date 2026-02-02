@@ -26,7 +26,7 @@ interface UseQuestionsResult {
 
 /**
  * Hook for fetching and managing the list of open questions.
- * 
+ *
  * Features:
  * - Automatically polls for new questions when the list is empty
  * - Uses exponential backoff (2s → 30s) to reduce API calls over time
@@ -42,7 +42,7 @@ export function useQuestions(options: UseQuestionsOptions = {}): UseQuestionsRes
     const [questions, setQuestions] = useState<QuestionListItem[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<Error | null>(null);
-    
+
     const pollTimeoutRef = useRef<number | null>(null);
     const isMountedRef = useRef(true);
     const currentIntervalRef = useRef(MIN_POLL_INTERVAL);
