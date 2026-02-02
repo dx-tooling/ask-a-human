@@ -239,6 +239,8 @@ terraform {
 }
 ```
 
+We will also enable bucket versioning to protect against accidental state file corruption.
+
 ### State Bucket Bootstrap
 
 Created manually before first Terraform run:
@@ -335,10 +337,10 @@ cd infrastructure/terraform/environments/prod
 terraform plan -out=tfplan
 terraform apply tfplan
 
-# Application code (Lambda)
+# Application code (Lambda) - source: backend-app/
 ./scripts/deploy-lambda.sh
 
-# Frontend (S3)
+# Frontend (S3) - source: frontend-app-web/
 ./scripts/deploy-frontend.sh
 ```
 

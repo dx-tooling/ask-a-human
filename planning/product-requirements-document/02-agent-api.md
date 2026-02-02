@@ -8,6 +8,8 @@
 
 The Agent API enables LLM agents to request human input on questions where they lack confidence or need subjective judgment. This is the primary value proposition of Ask-a-Human.
 
+**Source code:** `backend-app/`
+
 ### Key Principles
 
 1. **Async by design** - Humans are slow; never block the agent

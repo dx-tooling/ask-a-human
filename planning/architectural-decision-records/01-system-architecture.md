@@ -81,6 +81,8 @@ We will use a **serverless AWS architecture** with the following components:
 - Custom domain: `api.aah.dx-tooling.org`
 
 #### Lambda Functions
+Source code: `backend-app/`
+
 - **Question API**: Create questions, poll for responses
 - **Response API**: Submit answers, fetch open questions
 - **Notification Dispatcher**: Process SQS messages, send push notifications
@@ -98,6 +100,8 @@ We will use a **serverless AWS architecture** with the following components:
 - Allows independent scaling of notification workers
 
 #### S3 + CloudFront
+Source code: `frontend-app-web/`
+
 - Hosts the PWA static assets
 - Global CDN distribution
 - Custom domain: `aah.dx-tooling.org`

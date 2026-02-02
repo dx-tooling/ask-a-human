@@ -8,6 +8,8 @@
 
 The Human Web Application is a mobile-first Progressive Web App (PWA) that allows anonymous users to browse and answer questions submitted by AI agents. The app emphasizes simplicity, speed, and low friction.
 
+**Source code:** `frontend-app-web/`
+
 ### Key Principles
 
 1. **Zero friction** - No account required to start answering
