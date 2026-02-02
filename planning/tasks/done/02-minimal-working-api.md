@@ -4,6 +4,8 @@ title: Minimal Working API (Lambda + API Gateway)
 source: ADR-01, ADR-03, ADR-06
 priority: high
 created: 2026-02-02
+started: 2026-02-02
+completed: 2026-02-02
 ---
 
 # Minimal Working API (Lambda + API Gateway)
@@ -21,53 +23,53 @@ This task creates:
 ## Acceptance Criteria
 
 ### API Gateway Infrastructure
-- [ ] HTTP API created in API Gateway
-- [ ] Custom domain `api.ask-a-human.com` configured with ACM certificate
-- [ ] CORS configured for frontend origin
-- [ ] Routes configured for Lambda integrations
-- [ ] DNS CNAME record documented for IONOS
+- [x] HTTP API created in API Gateway
+- [x] Custom domain `api.ask-a-human.com` configured with ACM certificate
+- [x] CORS configured for frontend origin
+- [x] Routes configured for Lambda integrations
+- [x] DNS CNAME record documented for IONOS
 
 ### Lambda Functions
-- [ ] Runtime: Python 3.12 or Node.js 20.x (decide during implementation)
-- [ ] Lambda execution IAM role with DynamoDB access
-- [ ] Environment variables for table names
-- [ ] Functions deployed and working:
+- [x] Runtime: Python 3.13
+- [x] Lambda execution IAM role with DynamoDB access
+- [x] Environment variables for table names
+- [x] Functions deployed and working:
 
 #### Agent API
-- [ ] `POST /agent/questions` - Create a new question
+- [x] `POST /agent/questions` - Create a new question
   - Accepts: prompt, type, options (if MC), min_responses, timeout_seconds
   - Returns: question_id, status, poll_url, expires_at
   - Stores in `aah-questions` table
   
-- [ ] `GET /agent/questions/{question_id}` - Poll for responses
+- [x] `GET /agent/questions/{question_id}` - Poll for responses
   - Returns: question details + responses array
   - Reads from `aah-questions` and `aah-responses` tables
 
 #### Human API
-- [ ] `GET /human/questions` - List open questions
+- [x] `GET /human/questions` - List open questions
   - Returns: array of open questions (status=OPEN or PARTIAL)
   - Uses ByStatus GSI
   
-- [ ] `GET /human/questions/{question_id}` - Get single question
+- [x] `GET /human/questions/{question_id}` - Get single question
   - Returns: question details for answering
   
-- [ ] `POST /human/responses` - Submit an answer
+- [x] `POST /human/responses` - Submit an answer
   - Accepts: question_id, answer (text) or selected_option (MC), confidence
   - Stores in `aah-responses` table
   - Updates `current_responses` count in question
   - Returns: response_id, points_earned (placeholder: always 10)
 
 ### Terraform Modules
-- [ ] `modules/api/` - API Gateway configuration
-- [ ] `modules/lambda/` - Lambda function deployment
-- [ ] Production environment wires modules together
+- [x] `modules/api/` - API Gateway configuration
+- [x] `modules/lambda/` - Lambda function deployment
+- [x] Production environment wires modules together
 
 ### Verification
-- [ ] Can create a question via curl/Postman
-- [ ] Can poll the question and see status=OPEN
-- [ ] Can submit a response via curl/Postman
-- [ ] Can poll and see the response in the responses array
-- [ ] Question status changes to CLOSED when min_responses reached
+- [x] Can create a question via curl/Postman
+- [x] Can poll the question and see status=OPEN
+- [x] Can submit a response via curl/Postman
+- [x] Can poll and see the response in the responses array
+- [x] Question status changes to CLOSED when min_responses reached
 
 ## Out of Scope (Deferred)
 
@@ -92,38 +94,60 @@ This task creates:
 - ACM Certificate: `arn:aws:acm:us-west-1:325062206315:certificate/9d8f702b-560d-404b-8250-730c4cd33f8d`
 - Existing tables: `aah-questions`, `aah-responses`, `aah-subscriptions`, `aah-user-stats`
 
-### Directory Structure
+### Files Created
+
+**Backend Application (`backend-app/`):**
 ```
 backend-app/
 ├── src/
+│   ├── __init__.py
 │   ├── handlers/
-│   │   ├── agent_questions.py      # POST/GET /agent/questions
-│   │   └── human_responses.py      # GET/POST /human/*
+│   │   ├── __init__.py
+│   │   ├── agent_questions.py   # POST/GET /agent/questions
+│   │   └── human_api.py         # GET/POST /human/*
 │   ├── models/
-│   │   ├── question.py
-│   │   └── response.py
+│   │   ├── __init__.py
+│   │   ├── question.py          # Question dataclass + DynamoDB ops
+│   │   └── response.py          # Response dataclass + DynamoDB ops
 │   └── utils/
-│       └── dynamodb.py
+│       ├── __init__.py
+│       ├── api_response.py      # Standardized API responses
+│       └── dynamodb.py          # DynamoDB client wrapper
 ├── requirements.txt
 └── README.md
+```
 
+**Terraform Modules (`infrastructure/terraform/`):**
+```
 infrastructure/terraform/
 ├── modules/
-│   ├── api/                        # NEW: API Gateway module
+│   ├── api/                     # API Gateway HTTP API module
 │   │   ├── main.tf
 │   │   ├── variables.tf
 │   │   └── outputs.tf
-│   └── lambda/                     # NEW: Lambda module
+│   └── lambda/                  # Lambda function deployment module
 │       ├── main.tf
 │       ├── variables.tf
 │       └── outputs.tf
 └── environments/prod/
-    └── main.tf                     # Wire new modules
+    ├── main.tf                  # Wires all modules together
+    ├── variables.tf
+    ├── outputs.tf
+    └── terraform.tfvars
 ```
 
-### API Gateway Custom Domain
-After Terraform apply, add CNAME at IONOS:
-- `api.ask-a-human.com` → API Gateway domain name (from Terraform output)
+### Lambda Functions Deployed
+- `aah-agent-questions` - Handles `/agent/questions` endpoints
+- `aah-human-api` - Handles `/human/questions` and `/human/responses` endpoints
+
+### API Endpoints
+| Method | Path | Handler | Description |
+|--------|------|---------|-------------|
+| POST | `/agent/questions` | agent_questions | Create question |
+| GET | `/agent/questions/{question_id}` | agent_questions | Poll for responses |
+| GET | `/human/questions` | human_api | List open questions |
+| GET | `/human/questions/{question_id}` | human_api | Get single question |
+| POST | `/human/responses` | human_api | Submit answer |
 
 ## Testing Plan
 
@@ -147,4 +171,4 @@ curl https://api.ask-a-human.com/agent/questions/q_xxx
 
 ## ADR/PRD Updates
 
-(To be filled during implementation if any changes needed)
+- Updated Python runtime to 3.13 (from 3.12) to use latest Lambda-supported version
