@@ -31,8 +31,8 @@ python3 -m venv .venv
 source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 
 # Install SDK and MCP server
-pip install -e path/to/sdk-python
-pip install -e path/to/mcp-server
+pip install -e ../sdk-python
+pip install -e ./
 ```
 
 When using with Cursor/Claude Desktop, you may need to specify the full path to the Python executable in your MCP config:

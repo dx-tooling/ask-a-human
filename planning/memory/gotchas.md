@@ -63,6 +63,28 @@ Source: Task 06 - Lambda deploy failed with "RequestEntityTooLargeException" due
 
 ## Python
 
+### Type Stubs Must Use TYPE_CHECKING Guard
+
+Packages like `mypy_boto3_dynamodb`, `boto3-stubs`, etc. are type stubs for mypy - they're NOT runtime dependencies. If you import them at runtime, Lambda will fail with `ModuleNotFoundError`.
+
+**Wrong:**
+```python
+from mypy_boto3_dynamodb.service_resource import Table
+```
+
+**Right:**
+```python
+from __future__ import annotations
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from mypy_boto3_dynamodb.service_resource import Table
+```
+
+The `from __future__ import annotations` makes type hints strings (PEP 563), so they don't need to be imported at runtime.
+
+Source: Task 06 deployment - Lambda 500 error due to missing `mypy_boto3_dynamodb` module.
+
 ### Externally-Managed-Environment Error (PEP 668)
 
 Modern Python installations (macOS Homebrew, Debian 12+, Ubuntu 23.04+) block system-wide pip installs with "externally-managed-environment" error. This is intentional to prevent breaking system packages.

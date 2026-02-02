@@ -3,11 +3,15 @@
 Reference: ADR-02 Database Schema Design
 """
 
+from __future__ import annotations
+
 import os
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import boto3
-from mypy_boto3_dynamodb.service_resource import DynamoDBServiceResource, Table
+
+if TYPE_CHECKING:
+    from mypy_boto3_dynamodb.service_resource import DynamoDBServiceResource, Table
 
 # Lazy initialization of DynamoDB resource
 _dynamodb_resource: DynamoDBServiceResource | None = None
