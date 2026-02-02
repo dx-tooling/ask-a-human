@@ -2,14 +2,16 @@
 
 **Human-as-a-Service for Autonomous Agents**
 
-[![Backend Code Quality](https://github.com/dx-tooling/ask-a-human/actions/workflows/backend-code-quality.yml/badge.svg)](https://github.com/dx-tooling/ask-a-human/actions/workflows/backend-code-quality.yml)
-[![Backend Tests](https://github.com/dx-tooling/ask-a-human/actions/workflows/backend-tests.yml/badge.svg)](https://github.com/dx-tooling/ask-a-human/actions/workflows/backend-tests.yml)
-[![Frontend Code Quality](https://github.com/dx-tooling/ask-a-human/actions/workflows/frontend-code-quality.yml/badge.svg)](https://github.com/dx-tooling/ask-a-human/actions/workflows/frontend-code-quality.yml)
-[![Frontend Tests](https://github.com/dx-tooling/ask-a-human/actions/workflows/frontend-tests.yml/badge.svg)](https://github.com/dx-tooling/ask-a-human/actions/workflows/frontend-tests.yml)
-[![Python SDK Code Quality](https://github.com/dx-tooling/ask-a-human/actions/workflows/sdk-python-code-quality.yml/badge.svg)](https://github.com/dx-tooling/ask-a-human/actions/workflows/sdk-python-code-quality.yml)
-[![Python SDK Tests](https://github.com/dx-tooling/ask-a-human/actions/workflows/sdk-python-tests.yml/badge.svg)](https://github.com/dx-tooling/ask-a-human/actions/workflows/sdk-python-tests.yml)
-[![TypeScript SDK Code Quality](https://github.com/dx-tooling/ask-a-human/actions/workflows/sdk-typescript-code-quality.yml/badge.svg)](https://github.com/dx-tooling/ask-a-human/actions/workflows/sdk-typescript-code-quality.yml)
-[![TypeScript SDK Tests](https://github.com/dx-tooling/ask-a-human/actions/workflows/sdk-typescript-tests.yml/badge.svg)](https://github.com/dx-tooling/ask-a-human/actions/workflows/sdk-typescript-tests.yml)
+[![Humans Online](https://img.shields.io/badge/humans-online-green)](https://app.ask-a-human.com)
+[![Avg Response Latency](https://img.shields.io/badge/latency-3--45min-yellow)](https://app.ask-a-human.com)
+[![Power Consumption](https://img.shields.io/badge/power-~20W%20per%20human-brightgreen)](https://en.wikipedia.org/wiki/Human_brain)
+
+| Component | Quality | Tests |
+|-----------|---------|-------|
+| Backend | [![Backend Code Quality](https://github.com/dx-tooling/ask-a-human/actions/workflows/backend-code-quality.yml/badge.svg)](https://github.com/dx-tooling/ask-a-human/actions/workflows/backend-code-quality.yml) | [![Backend Tests](https://github.com/dx-tooling/ask-a-human/actions/workflows/backend-tests.yml/badge.svg)](https://github.com/dx-tooling/ask-a-human/actions/workflows/backend-tests.yml) |
+| Frontend | [![Frontend Code Quality](https://github.com/dx-tooling/ask-a-human/actions/workflows/frontend-code-quality.yml/badge.svg)](https://github.com/dx-tooling/ask-a-human/actions/workflows/frontend-code-quality.yml) | [![Frontend Tests](https://github.com/dx-tooling/ask-a-human/actions/workflows/frontend-tests.yml/badge.svg)](https://github.com/dx-tooling/ask-a-human/actions/workflows/frontend-tests.yml) |
+| Python SDK | [![Python SDK Code Quality](https://github.com/dx-tooling/ask-a-human/actions/workflows/sdk-python-code-quality.yml/badge.svg)](https://github.com/dx-tooling/ask-a-human/actions/workflows/sdk-python-code-quality.yml) | [![Python SDK Tests](https://github.com/dx-tooling/ask-a-human/actions/workflows/sdk-python-tests.yml/badge.svg)](https://github.com/dx-tooling/ask-a-human/actions/workflows/sdk-python-tests.yml) |
+| TypeScript SDK | [![TypeScript SDK Code Quality](https://github.com/dx-tooling/ask-a-human/actions/workflows/sdk-typescript-code-quality.yml/badge.svg)](https://github.com/dx-tooling/ask-a-human/actions/workflows/sdk-typescript-code-quality.yml) | [![TypeScript SDK Tests](https://github.com/dx-tooling/ask-a-human/actions/workflows/sdk-typescript-tests.yml/badge.svg)](https://github.com/dx-tooling/ask-a-human/actions/workflows/sdk-typescript-tests.yml) |
 
 ---
 
