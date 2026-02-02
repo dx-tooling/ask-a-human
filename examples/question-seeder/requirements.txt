@@ -1,0 +1,5 @@
+# Core SDK
+ask-a-human @ file:../../sdk-python
+
+# CLI display
+rich>=13.0.0

@@ -182,6 +182,7 @@ Working examples to get you started:
 
 - [Python Content Writer](examples/content-writer-agent/) — CLI agent with human-in-the-loop tone decisions
 - [TypeScript Content Writer](examples/typescript-content-writer/) — Same agent, different runtime
+- [Question Seeder](examples/question-seeder/) — Continuously seeds questions and monitors human responses
 
 ---
 

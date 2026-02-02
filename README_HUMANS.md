@@ -147,6 +147,7 @@ Working examples demonstrating the integration:
 
 - [Python Content Writer](examples/content-writer-agent/) — CLI agent that asks humans about tone
 - [TypeScript Content Writer](examples/typescript-content-writer/) — Same concept in TypeScript
+- [Question Seeder](examples/question-seeder/) — Seeds questions and monitors responses in real-time
 
 ## Documentation
 
