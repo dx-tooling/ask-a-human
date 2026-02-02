@@ -106,8 +106,7 @@ export class AskHumanClient {
    * ```
    */
   constructor(options?: ClientOptions) {
-    this.baseUrl =
-      options?.baseUrl ?? process.env["ASK_A_HUMAN_BASE_URL"] ?? DEFAULT_BASE_URL;
+    this.baseUrl = options?.baseUrl ?? process.env["ASK_A_HUMAN_BASE_URL"] ?? DEFAULT_BASE_URL;
     this.agentId = options?.agentId ?? process.env["ASK_A_HUMAN_AGENT_ID"] ?? "default";
     this.timeout = options?.timeout ?? DEFAULT_TIMEOUT;
     this.fetchImpl = options?.fetch ?? globalThis.fetch;

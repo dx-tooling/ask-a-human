@@ -309,10 +309,7 @@ export class AskHumanOrchestrator {
    *
    * @internal
    */
-  private checkAllDone(
-    results: Record<string, QuestionResponse>,
-    minResponses: number
-  ): boolean {
+  private checkAllDone(results: Record<string, QuestionResponse>, minResponses: number): boolean {
     for (const response of Object.values(results)) {
       // Question is done if it's CLOSED or EXPIRED
       if (response.status === "CLOSED" || response.status === "EXPIRED") {

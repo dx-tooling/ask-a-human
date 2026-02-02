@@ -28,14 +28,18 @@ def main() -> None:
         # Submit a text question
         print("Submitting question to humans...")
         submission = client.submit_question(
-            prompt="Should error messages in a shopping app apologize to the user, or just state the facts? Consider the emotional impact on users during payment failures.",
+            prompt=(
+                "Should error messages in a shopping app apologize to the user, "
+                "or just state the facts? Consider the emotional impact on users "
+                "during payment failures."
+            ),
             type="text",
             audience=["product", "creative"],
             min_responses=3,
             timeout_seconds=3600,  # 1 hour
         )
 
-        print(f"Question submitted!")
+        print("Question submitted!")
         print(f"  Question ID: {submission.question_id}")
         print(f"  Status: {submission.status}")
         print(f"  Expires at: {submission.expires_at}")

@@ -40,7 +40,7 @@ export default [
       "@typescript-eslint/explicit-module-boundary-types": "off",
       "@typescript-eslint/no-explicit-any": "warn",
       "no-console": "off",
-      "no-constant-condition": ["error", { "checkLoops": false }],
+      "no-constant-condition": ["error", { checkLoops: false }],
     },
   },
   {

@@ -1,7 +1,5 @@
 """Pytest configuration and fixtures for Ask-a-Human SDK tests."""
 
-from datetime import datetime, timezone
-
 import pytest
 
 from ask_a_human import AskHumanClient

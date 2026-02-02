@@ -126,7 +126,7 @@ class TestSubmitQuestion:
         client: AskHumanClient,
         validation_error_response: dict,
     ) -> None:
-        """Test validation error handling."""
+        """Test validation error handling from server."""
         httpx_mock.add_response(
             method="POST",
             url="https://api.example.com/agent/questions",
@@ -134,8 +134,12 @@ class TestSubmitQuestion:
             status_code=400,
         )
 
+        # Use a prompt that passes client-side validation but server rejects
         with pytest.raises(ValidationError) as exc_info:
-            client.submit_question(prompt="Too short", type="text")
+            client.submit_question(
+                prompt="A valid length prompt for testing server errors",
+                type="text",
+            )
 
         assert exc_info.value.code == "VALIDATION_ERROR"
         assert exc_info.value.field == "prompt"

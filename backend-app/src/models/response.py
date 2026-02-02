@@ -160,7 +160,7 @@ def get_answered_question_ids(fingerprint_hash: str) -> set[str]:
         ProjectionExpression="question_id",
     )
 
-    question_ids = {item["question_id"] for item in response.get("Items", [])}
+    question_ids: set[str] = {str(item["question_id"]) for item in response.get("Items", [])}
 
     # Handle pagination if there are many responses
     while "LastEvaluatedKey" in response:
@@ -171,6 +171,6 @@ def get_answered_question_ids(fingerprint_hash: str) -> set[str]:
             ProjectionExpression="question_id",
             ExclusiveStartKey=response["LastEvaluatedKey"],
         )
-        question_ids.update(item["question_id"] for item in response.get("Items", []))
+        question_ids.update(str(item["question_id"]) for item in response.get("Items", []))
 
     return question_ids

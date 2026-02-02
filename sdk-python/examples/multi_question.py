@@ -16,7 +16,7 @@ from ask_a_human import AskHumanClient, AskHumanOrchestrator
 from ask_a_human.exceptions import AskHumanError
 
 
-def main() -> None:
+def main() -> None:  # noqa: C901
     """Run the multi-question example."""
     # Create client and orchestrator
     client = AskHumanClient(agent_id="example-agent")
@@ -35,7 +35,10 @@ def main() -> None:
 
         # Question 1: Text question about tone
         q1 = orchestrator.submit(
-            prompt="What tone should a payment failure notification use? Consider the user just had their credit card declined.",
+            prompt=(
+                "What tone should a payment failure notification use? "
+                "Consider the user just had their credit card declined."
+            ),
             type="text",
             audience=["product", "creative"],
             min_responses=3,

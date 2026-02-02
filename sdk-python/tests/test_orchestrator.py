@@ -156,12 +156,12 @@ class TestPollOnce:
         assert results["q_test123"].status == "PARTIAL"
         mock_client.get_question.assert_called_once_with("q_test123")
 
+    @pytest.mark.usefixtures("partial_response")
     def test_poll_once_multiple_questions(
         self,
         orchestrator: AskHumanOrchestrator,
         mock_client: MagicMock,
         open_response: QuestionResponse,
-        partial_response: QuestionResponse,
     ) -> None:
         """Test polling multiple questions."""
         # Create a second response with different ID
@@ -223,7 +223,7 @@ class TestAwaitResponses:
     @patch("ask_a_human.orchestrator.time.sleep")
     def test_await_polls_until_responses(
         self,
-        mock_sleep: MagicMock,
+        mock_sleep: MagicMock,  # noqa: ARG002
         orchestrator: AskHumanOrchestrator,
         mock_client: MagicMock,
         open_response: QuestionResponse,
@@ -248,7 +248,7 @@ class TestAwaitResponses:
     def test_await_respects_timeout(
         self,
         mock_time: MagicMock,
-        mock_sleep: MagicMock,
+        mock_sleep: MagicMock,  # noqa: ARG002
         orchestrator: AskHumanOrchestrator,
         mock_client: MagicMock,
         open_response: QuestionResponse,

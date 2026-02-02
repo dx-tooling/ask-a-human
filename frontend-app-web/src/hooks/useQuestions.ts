@@ -44,7 +44,9 @@ export function useQuestions(options: UseQuestionsOptions = {}): UseQuestionsRes
     const [error, setError] = useState<Error | null>(null);
 
     const pollTimeoutRef = useRef<number | null>(null);
-    const isMountedRef = useRef(true);
+    // Use explicit boolean type to prevent TypeScript from narrowing to literal `true`
+    // This ref changes during async operations (set to false in cleanup)
+    const isMountedRef = useRef<boolean>(true);
     const currentIntervalRef = useRef(MIN_POLL_INTERVAL);
     const isPollingRef = useRef(false);
 
@@ -102,6 +104,7 @@ export function useQuestions(options: UseQuestionsOptions = {}): UseQuestionsRes
 
             try {
                 const data = await getQuestions(limit);
+                // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- ref changes during async
                 if (!isMountedRef.current) return;
 
                 setQuestions(data);
@@ -120,6 +123,7 @@ export function useQuestions(options: UseQuestionsOptions = {}): UseQuestionsRes
                 }
             } catch {
                 // On error, continue polling with backoff
+                // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- ref changes during async
                 if (isMountedRef.current) {
                     currentIntervalRef.current = Math.min(
                         currentIntervalRef.current * BACKOFF_MULTIPLIER,
@@ -161,6 +165,7 @@ export function useQuestions(options: UseQuestionsOptions = {}): UseQuestionsRes
 
         try {
             const data = await getQuestions(limit);
+            // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- ref changes during async
             if (!isMountedRef.current) return;
 
             setQuestions(data);
@@ -171,6 +176,7 @@ export function useQuestions(options: UseQuestionsOptions = {}): UseQuestionsRes
             }
         } catch {
             // On error, start polling which will retry
+            // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- ref changes during async
             if (isMountedRef.current) {
                 startPolling();
             }

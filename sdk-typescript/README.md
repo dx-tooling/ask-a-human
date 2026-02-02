@@ -61,13 +61,10 @@ const submission = await orchestrator.submit({
 });
 
 // Wait for responses (with timeout)
-const responses = await orchestrator.awaitResponses(
-  [submission.questionId],
-  {
-    minResponses: 5,
-    timeout: 300000, // 5 minutes
-  }
-);
+const responses = await orchestrator.awaitResponses([submission.questionId], {
+  minResponses: 5,
+  timeout: 300000, // 5 minutes
+});
 
 // Process responses
 const question = responses[submission.questionId];
@@ -117,13 +114,10 @@ if (response.summary) {
 The orchestrator can return partial results when a timeout is reached:
 
 ```typescript
-const responses = await orchestrator.awaitResponses(
-  ["q_abc123"],
-  {
-    minResponses: 10,
-    timeout: 60000, // 1 minute
-  }
-);
+const responses = await orchestrator.awaitResponses(["q_abc123"], {
+  minResponses: 10,
+  timeout: 60000, // 1 minute
+});
 
 const question = responses["q_abc123"];
 
@@ -146,13 +140,10 @@ const controller = new AbortController();
 setTimeout(() => controller.abort(), 30000);
 
 try {
-  const responses = await orchestrator.awaitResponses(
-    [submission.questionId],
-    {
-      timeout: 300000,
-      signal: controller.signal,
-    }
-  );
+  const responses = await orchestrator.awaitResponses([submission.questionId], {
+    timeout: 300000,
+    signal: controller.signal,
+  });
 } catch (error) {
   if (error instanceof AbortError) {
     console.log("Operation was cancelled");
@@ -172,8 +163,8 @@ try {
 ```typescript
 const client = new AskHumanClient({
   baseUrl: "https://api.ask-a-human.com", // API endpoint
-  agentId: "my-agent",                     // Your agent identifier
-  timeout: 30000,                          // HTTP request timeout (ms)
+  agentId: "my-agent", // Your agent identifier
+  timeout: 30000, // HTTP request timeout (ms)
 });
 ```
 
@@ -181,9 +172,9 @@ const client = new AskHumanClient({
 
 ```typescript
 const orchestrator = new AskHumanOrchestrator(client, {
-  pollInterval: 30000,      // Base interval between polls (ms)
-  maxBackoff: 300000,       // Maximum backoff interval (ms)
-  backoffMultiplier: 1.5,   // Exponential backoff multiplier
+  pollInterval: 30000, // Base interval between polls (ms)
+  maxBackoff: 300000, // Maximum backoff interval (ms)
+  backoffMultiplier: 1.5, // Exponential backoff multiplier
 });
 ```
 

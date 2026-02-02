@@ -9,7 +9,6 @@ from typing import Literal
 
 from pydantic import BaseModel, Field
 
-
 # Type aliases for literals
 QuestionType = Literal["text", "multiple_choice"]
 """Type of question: 'text' for free-form answers, 'multiple_choice' for predefined options."""

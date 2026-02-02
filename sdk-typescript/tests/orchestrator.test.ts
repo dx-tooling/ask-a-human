@@ -92,9 +92,7 @@ describe("AskHumanOrchestrator", () => {
         responses: [],
       };
 
-      mockClient.getQuestion
-        .mockResolvedValueOnce(response1)
-        .mockResolvedValueOnce(response2);
+      mockClient.getQuestion.mockResolvedValueOnce(response1).mockResolvedValueOnce(response2);
 
       const orchestrator = new AskHumanOrchestrator(mockClient as unknown as AskHumanClient);
       const results = await orchestrator.pollOnce(["q_abc123", "q_def456"]);

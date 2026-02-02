@@ -227,12 +227,7 @@ export class ServerError extends AskHumanError {
    */
   readonly statusCode: number;
 
-  constructor(
-    message: string,
-    statusCode = 500,
-    code?: string,
-    details?: Record<string, unknown>
-  ) {
+  constructor(message: string, statusCode = 500, code?: string, details?: Record<string, unknown>) {
     super(message, code ?? "SERVER_ERROR", details);
     this.name = "ServerError";
     this.statusCode = statusCode;
