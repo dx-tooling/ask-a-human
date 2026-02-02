@@ -155,6 +155,28 @@ export function useQuestions(options: UseQuestionsOptions = {}): UseQuestionsRes
         };
     }, [fetchQuestions, clearPollTimeout]);
 
+    // Immediate silent fetch (for tab visibility return)
+    const fetchImmediately = useCallback(async () => {
+        if (!isMountedRef.current) return;
+
+        try {
+            const data = await getQuestions(limit);
+            if (!isMountedRef.current) return;
+
+            setQuestions(data);
+
+            // If still empty after immediate fetch, start polling
+            if (data.length === 0) {
+                startPolling();
+            }
+        } catch {
+            // On error, start polling which will retry
+            if (isMountedRef.current) {
+                startPolling();
+            }
+        }
+    }, [limit, startPolling]);
+
     // Handle visibility change - pause/resume polling
     useEffect(() => {
         const handleVisibilityChange = () => {
@@ -162,10 +184,11 @@ export function useQuestions(options: UseQuestionsOptions = {}): UseQuestionsRes
                 // Tab hidden - stop polling
                 stopPolling();
             } else {
-                // Tab visible - reset backoff and resume if needed
+                // Tab visible - reset backoff and fetch immediately
                 resetBackoff();
                 if (questions.length === 0 && !isLoading && !error) {
-                    startPolling();
+                    // Fetch immediately when returning to tab
+                    void fetchImmediately();
                 }
             }
         };
@@ -174,7 +197,7 @@ export function useQuestions(options: UseQuestionsOptions = {}): UseQuestionsRes
         return () => {
             document.removeEventListener("visibilitychange", handleVisibilityChange);
         };
-    }, [questions.length, isLoading, error, startPolling, stopPolling, resetBackoff]);
+    }, [questions.length, isLoading, error, stopPolling, resetBackoff, fetchImmediately]);
 
     // Start/stop polling based on questions state
     useEffect(() => {
