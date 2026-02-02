@@ -30,6 +30,16 @@ eval $(bash infrastructure/scripts/aws-assume-role.sh)
 
 Symptoms if you forget: "Access Denied" errors or operations happening in the wrong account.
 
+### Lambda Python Runtime Versions
+
+AWS Lambda runtime identifiers don't always match the latest Python versions. As of Feb 2026:
+- Latest supported: `python3.13`
+- `python3.14` is NOT yet supported (will fail Terraform validation)
+
+Check AWS documentation for current supported runtimes: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
+
+Source: Task 02 - Terraform plan failed with `python3.14`, had to use `python3.13`.
+
 ---
 
 ## DynamoDB

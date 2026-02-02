@@ -72,3 +72,85 @@ resource "aws_acm_certificate" "main" {
     Component = "ssl"
   }
 }
+
+# =============================================================================
+# Lambda Functions
+# Backend API handlers for agent and human endpoints
+# =============================================================================
+module "lambda_agent_questions" {
+  source = "../../modules/lambda"
+
+  function_name = "aah-agent-questions"
+  handler       = "src.handlers.agent_questions.handler"
+  runtime       = "python3.13"
+  source_dir    = "${path.module}/../../../../backend-app"
+
+  memory_size = 256
+  timeout     = 10
+
+  environment_variables = {
+    QUESTIONS_TABLE = module.database.questions_table_name
+    RESPONSES_TABLE = module.database.responses_table_name
+  }
+
+  dynamo_table_arns = module.database.all_table_and_index_arns
+
+  allow_apigw_invoke        = true
+  api_gateway_execution_arn = module.api.api_execution_arn
+
+  tags = {
+    Component = "lambda"
+    Handler   = "agent-questions"
+  }
+}
+
+module "lambda_human_api" {
+  source = "../../modules/lambda"
+
+  function_name = "aah-human-api"
+  handler       = "src.handlers.human_api.handler"
+  runtime       = "python3.13"
+  source_dir    = "${path.module}/../../../../backend-app"
+
+  memory_size = 256
+  timeout     = 10
+
+  environment_variables = {
+    QUESTIONS_TABLE = module.database.questions_table_name
+    RESPONSES_TABLE = module.database.responses_table_name
+  }
+
+  dynamo_table_arns = module.database.all_table_and_index_arns
+
+  allow_apigw_invoke        = true
+  api_gateway_execution_arn = module.api.api_execution_arn
+
+  tags = {
+    Component = "lambda"
+    Handler   = "human-api"
+  }
+}
+
+# =============================================================================
+# API Gateway
+# HTTP API with custom domain and Lambda integrations
+# =============================================================================
+module "api" {
+  source = "../../modules/api"
+
+  api_name        = "aah-api"
+  domain_name     = var.api_subdomain
+  certificate_arn = aws_acm_certificate.main.arn
+
+  cors_origins = [
+    "https://${var.domain_name}",
+    "https://www.${var.domain_name}",
+  ]
+
+  agent_questions_lambda_invoke_arn = module.lambda_agent_questions.invoke_arn
+  human_api_lambda_invoke_arn       = module.lambda_human_api.invoke_arn
+
+  tags = {
+    Component = "api"
+  }
+}

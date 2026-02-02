@@ -1,0 +1,5 @@
+# Ask-a-Human Backend Dependencies
+# Note: boto3 is provided by AWS Lambda runtime, not needed here
+
+# No additional dependencies required for MVP
+# boto3 is included in the Lambda runtime
