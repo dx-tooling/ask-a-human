@@ -19,12 +19,11 @@ interface RenderConfirmationOptions {
 }
 
 const renderConfirmation = (options: RenderConfirmationOptions = {}) => {
-    const state = options.pointsEarned !== undefined ? { pointsEarned: options.pointsEarned } : null;
+    const state =
+        options.pointsEarned !== undefined ? { pointsEarned: options.pointsEarned } : null;
 
     return render(
-        <MemoryRouter
-            initialEntries={[{ pathname: "/confirmation", state }]}
-        >
+        <MemoryRouter initialEntries={[{ pathname: "/confirmation", state }]}>
             <ThemeProvider>
                 <Routes>
                     <Route path="/confirmation" element={<Confirmation />} />
@@ -48,7 +47,9 @@ describe("Confirmation", () => {
         renderConfirmation();
 
         expect(screen.getByText("Thank you!")).toBeInTheDocument();
-        expect(screen.getByText("Your answer has been submitted successfully.")).toBeInTheDocument();
+        expect(
+            screen.getByText("Your answer has been submitted successfully.")
+        ).toBeInTheDocument();
     });
 
     it("displays points earned from state", () => {

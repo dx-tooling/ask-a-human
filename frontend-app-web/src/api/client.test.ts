@@ -52,7 +52,7 @@ describe("API Client", () => {
 
             expect(mockFetch).toHaveBeenCalledWith(
                 "https://api.example.com/human/questions?limit=20",
-                 
+
                 expect.objectContaining({
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
                     headers: expect.objectContaining({
@@ -299,9 +299,8 @@ describe("API Client", () => {
             await getQuestions();
 
             expect(mockFetch).toHaveBeenCalledWith(
-                 
                 expect.any(String),
-                 
+
                 expect.objectContaining({
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
                     headers: expect.objectContaining({
@@ -324,10 +323,7 @@ describe("API Client", () => {
 
             await getQuestions();
 
-            expect(mockFetch).toHaveBeenCalledWith(
-                "/human/questions?limit=20",
-                expect.any(Object)
-            );
+            expect(mockFetch).toHaveBeenCalledWith("/human/questions?limit=20", expect.any(Object));
         });
 
         it("removes trailing slash from base URL", async () => {

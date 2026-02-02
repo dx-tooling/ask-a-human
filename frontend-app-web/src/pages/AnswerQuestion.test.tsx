@@ -157,7 +157,9 @@ describe("AnswerQuestion", () => {
         renderAnswerQuestion();
 
         const textarea = screen.getByLabelText("Your Answer");
-        fireEvent.change(textarea, { target: { value: "This is my answer with enough characters" } });
+        fireEvent.change(textarea, {
+            target: { value: "This is my answer with enough characters" },
+        });
 
         expect(screen.getByRole("button", { name: "Submit Answer" })).not.toBeDisabled();
     });
