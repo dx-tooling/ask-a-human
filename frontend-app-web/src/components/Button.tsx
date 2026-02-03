@@ -13,16 +13,16 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const variantClasses: Record<ButtonVariant, string> = {
     primary:
-        "bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500 dark:bg-primary-500 dark:hover:bg-primary-600 shadow-lg shadow-primary-600/30 hover:shadow-xl hover:shadow-primary-600/40 dark:shadow-primary-500/30",
+        "bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold shadow-lg focus:ring-blue-500 dark:from-blue-500 dark:to-blue-600 dark:hover:from-blue-600 dark:hover:to-blue-700 cursor-pointer",
     secondary:
-        "bg-gray-200 text-gray-900 hover:bg-gray-300 focus:ring-gray-400 dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600",
-    ghost: "bg-transparent text-gray-700 hover:bg-gray-100 focus:ring-gray-400 dark:text-gray-300 dark:hover:bg-gray-800",
+        "bg-gray-200 text-gray-900 hover:bg-gray-300 focus:ring-gray-400 dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600 cursor-pointer",
+    ghost: "bg-transparent text-gray-700 hover:bg-gray-100 focus:ring-gray-400 dark:text-gray-300 dark:hover:bg-gray-800 cursor-pointer",
 };
 
 const sizeClasses: Record<ButtonSize, string> = {
     sm: "px-3 py-1.5 text-sm min-h-[36px]",
     md: "px-4 py-2 text-base min-h-touch-target",
-    lg: "px-6 py-3 text-lg min-h-[52px]",
+    lg: "px-8 py-4 text-lg min-h-[56px]",
 };
 
 export function Button({

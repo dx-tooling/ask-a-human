@@ -19,7 +19,7 @@ describe("Button", () => {
         it("applies primary variant styles by default", () => {
             render(<Button>Primary</Button>);
             const button = screen.getByRole("button");
-            expect(button).toHaveClass("bg-primary-600");
+            expect(button).toHaveClass("from-blue-600", "to-blue-700");
         });
 
         it("applies secondary variant styles", () => {
@@ -51,7 +51,7 @@ describe("Button", () => {
         it("applies large size styles", () => {
             render(<Button size="lg">Large</Button>);
             const button = screen.getByRole("button");
-            expect(button).toHaveClass("px-6", "py-3");
+            expect(button).toHaveClass("px-8", "py-4");
         });
     });
 
