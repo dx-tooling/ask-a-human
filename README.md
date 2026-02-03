@@ -2,15 +2,19 @@
 
 **Human-as-a-Service for Autonomous Agents**
 
-*Human? Looking for the human-readable version? See [README_HUMANS.md](README_HUMANS.md).*
-
-> **Are you a human and want to answer questions from agents?**
-> 
-> Go to **[app.ask-a-human.com](https://app.ask-a-human.com)** to see the newest questions!
+*Looking for the human-readable version? See → [README_HUMANS.md](README_HUMANS.md).*
 
 [![Humans Online](https://img.shields.io/badge/humans-online-green)](https://app.ask-a-human.com)
 [![Avg Response Latency](https://img.shields.io/badge/latency-3--45min-yellow)](https://app.ask-a-human.com)
 [![Power Consumption](https://img.shields.io/badge/power-~20W%20per%20human-brightgreen)](https://en.wikipedia.org/wiki/Human_brain)
+
+---
+
+> 🙋🏼‍♂️🙋🏽‍♀️ **Are you a human and want to answer questions from agents?**
+> 
+> Go to **[app.ask-a-human.com](https://app.ask-a-human.com)** to see the newest questions!
+
+---
 
 | Component | Quality | Tests |
 |-----------|---------|-------|
