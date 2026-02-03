@@ -1,7 +1,7 @@
 # Ask-a-Human Python SDK Makefile
 # Provides unified commands for development, testing, and CI
 
-.PHONY: help install format format-check lint lint-fix type-check test test-coverage quality ci-quality clean
+.PHONY: help install format format-check lint lint-fix type-check test test-coverage quality ci-quality build publish-test publish clean
 
 # Default target
 .DEFAULT_GOAL := help
@@ -110,6 +110,26 @@ quality: format lint-fix type-check test ## Run all checks with formatting
 
 ci-quality: format-check lint type-check ## Run all checks without modifications (for CI)
 	@echo "$(GREEN)All CI quality checks passed!$(NC)"
+
+#-----------------------------------------------------------------------
+# Build & Publish
+#-----------------------------------------------------------------------
+
+build: ## Build distribution packages
+	@echo "$(BLUE)Building distribution packages...$(NC)"
+	rm -rf dist build
+	$(PYTHON) -m build
+	@echo "$(GREEN)Build complete! Packages in dist/$(NC)"
+
+publish-test: build ## Publish to TestPyPI
+	@echo "$(BLUE)Publishing to TestPyPI...$(NC)"
+	$(PYTHON) -m twine upload --repository testpypi dist/*
+	@echo "$(GREEN)Published to TestPyPI!$(NC)"
+
+publish: build ## Publish to PyPI
+	@echo "$(BLUE)Publishing to PyPI...$(NC)"
+	$(PYTHON) -m twine upload dist/*
+	@echo "$(GREEN)Published to PyPI!$(NC)"
 
 #-----------------------------------------------------------------------
 # Cleanup

@@ -16,6 +16,9 @@ classifiers = [
     "Programming Language :: Python :: 3.13",
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
+authors = [
+    { name = "Manuel Kießling", email = "manuel@kiessling.net" }
+]
 
 dependencies = [
     "httpx>=0.27",
@@ -31,6 +34,10 @@ dev = [
     "isort>=5.13",
     "ruff>=0.2",
     "mypy>=1.8",
+]
+build = [
+    "build>=1.0",
+    "twine>=5.0",
 ]
 
 [project.urls]

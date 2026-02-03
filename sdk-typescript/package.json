@@ -32,7 +32,8 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "typecheck": "tsc --noEmit",
-    "clean": "rm -rf dist node_modules .turbo coverage"
+    "clean": "rm -rf dist node_modules .turbo coverage",
+    "prepublishOnly": "npm run build && npm run test"
   },
   "keywords": [
     "ask-a-human",
@@ -43,8 +44,11 @@
     "mcp",
     "human-feedback"
   ],
-  "author": "",
+  "author": "Manuel Kießling <manuel@kiessling.net>",
   "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/dx-tooling/ask-a-human"
