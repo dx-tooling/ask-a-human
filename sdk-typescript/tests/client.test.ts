@@ -23,11 +23,23 @@ describe("AskHumanClient", () => {
 
   describe("constructor", () => {
     it("uses default values when no options provided", () => {
-      const client = new AskHumanClient({ fetch: mockFetch });
+      // Clear environment variables to test true defaults
+      const originalBaseUrl = process.env["ASK_A_HUMAN_BASE_URL"];
+      const originalAgentId = process.env["ASK_A_HUMAN_AGENT_ID"];
+      delete process.env["ASK_A_HUMAN_BASE_URL"];
+      delete process.env["ASK_A_HUMAN_AGENT_ID"];
 
-      expect(client.baseUrl).toBe("https://api.ask-a-human.com");
-      expect(client.agentId).toBe("default");
-      expect(client.timeout).toBe(30000);
+      try {
+        const client = new AskHumanClient({ fetch: mockFetch });
+
+        expect(client.baseUrl).toBe("https://api.ask-a-human.com");
+        expect(client.agentId).toBe("default");
+        expect(client.timeout).toBe(30000);
+      } finally {
+        // Restore environment variables
+        if (originalBaseUrl !== undefined) process.env["ASK_A_HUMAN_BASE_URL"] = originalBaseUrl;
+        if (originalAgentId !== undefined) process.env["ASK_A_HUMAN_AGENT_ID"] = originalAgentId;
+      }
     });
 
     it("uses provided options", () => {
