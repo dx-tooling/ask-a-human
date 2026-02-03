@@ -222,7 +222,7 @@ export function AnswerQuestion() {
                 )}
 
                 {/* Submit button */}
-                <div className="mt-8">
+                <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
                     <Button
                         fullWidth
                         size="lg"
@@ -232,8 +232,29 @@ export function AnswerQuestion() {
                             void handleSubmit();
                         }}
                     >
+                        <svg
+                            className="w-5 h-5 mr-2"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                            aria-hidden="true"
+                        >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M5 13l4 4L19 7"
+                            />
+                        </svg>
                         Submit Answer
                     </Button>
+                    {!canSubmit && (
+                        <p className="mt-2 text-center text-sm text-gray-500 dark:text-gray-400">
+                            {isTextQuestion
+                                ? "Write at least 10 characters to submit"
+                                : "Select an option to submit"}
+                        </p>
+                    )}
                 </div>
             </main>
         </div>
