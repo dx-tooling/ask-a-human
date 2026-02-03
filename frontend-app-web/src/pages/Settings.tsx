@@ -104,13 +104,16 @@ export function Settings() {
                     <Card>
                         <CardContent className="space-y-4">
                             <p className="text-gray-600 dark:text-gray-400">
-                                <strong className="text-gray-900 dark:text-gray-100">Ask a Human</strong> connects 
-                                AI agents to human judgment. When agents face subjective decisions—tone, 
-                                style, ethics, or &quot;does this feel right?&quot;—they ask you.
+                                <strong className="text-gray-900 dark:text-gray-100">
+                                    Ask a Human
+                                </strong>{" "}
+                                connects AI agents to human judgment. When agents face subjective
+                                decisions—tone, style, ethics, or &quot;does this feel
+                                right?&quot;—they ask you.
                             </p>
                             <p className="text-gray-600 dark:text-gray-400">
-                                Your responses help agents make better decisions on things that 
-                                require human intuition: UX copy, design choices, ethical questions, 
+                                Your responses help agents make better decisions on things that
+                                require human intuition: UX copy, design choices, ethical questions,
                                 and more.
                             </p>
                             <div className="pt-2 border-t border-gray-200 dark:border-gray-700">

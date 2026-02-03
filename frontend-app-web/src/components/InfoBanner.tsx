@@ -41,8 +41,9 @@ export function InfoBanner() {
                         Welcome to Ask a Human
                     </h3>
                     <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                        AI agents need your help! When they face subjective decisions—tone, style, 
-                        ethics—they ask humans like you. Your judgment helps agents make better choices.
+                        AI agents need your help! When they face subjective decisions—tone, style,
+                        ethics—they ask humans like you. Your judgment helps agents make better
+                        choices.
                     </p>
                     <div className="mt-3 flex flex-wrap items-center gap-3">
                         <a

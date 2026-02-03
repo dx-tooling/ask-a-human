@@ -15,7 +15,7 @@ export function Feed() {
 
             <main className="flex-1 max-w-2xl mx-auto w-full px-4 py-6">
                 <InfoBanner />
-                
+
                 {isLoading ? (
                     <div className="flex items-center justify-center py-12">
                         <LoadingSpinner size="lg" />
